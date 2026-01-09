@@ -1,7 +1,7 @@
 # DTU_MLops
 
-## Goal of the project
-
+## Goals of the project
+The main goal of the project is to do multiclass classification for CT images of different organs.
 ## Frameworks 
 For project template we will use `cookiecutter`. For dependency managment we will use `uv`. For experiments tracking and configuration we will use `hydra` and `weights & biases`. For containerization we will use `docker`. For continious integration we will use `Github actions`. For deployment we will use `Hugging face Spaces`. 
 ## Data 
