@@ -1,7 +1,7 @@
 # DTU_MLops
-
+This is GitHub repository of Group 44 for [DTU 02476 Machine Learning Operation (MLO) Course](https://kurser.dtu.dk/course/02476).
 ## Goals of the project
-The main goal of the project is to do multiclass classification for CT images of different organs.
+The main goal of the project is to build production MLOps pipeline for development of ML project. As for ML goal, it is to do multi-class classification for CT images datasets (COPYPASTE the names!!!) from [MedMNIST](https://medmnist.com). Class labels describe which part of the body is mainly featured in the image.
 ## Frameworks 
 For project template we will use `cookiecutter`. For dependency managment we will use `uv`. For experiments tracking and configuration we will use `hydra` and `weights & biases`. For containerization we will use `docker`. For continious integration we will use `Github actions`. For deployment we will use `Hugging face Spaces`. For linting and codestyle we will use `ruff`linter. For testing we will use `pytest`
 ## Data 
