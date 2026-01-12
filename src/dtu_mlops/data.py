@@ -15,7 +15,7 @@ class MedMNIST_dataset(Dataset):
     def __init__(
             self,
             data_path: Path,
-            data_flag: str = "pathmnist",
+            data_flag: str = "organamnist",
             split: str = "train",
             ) -> None:
 
