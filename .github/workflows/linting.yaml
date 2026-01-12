@@ -25,14 +25,6 @@ jobs:
           uv sync --locked --dev
           uv tree
 
-      - name: ruff linter
+      - name: Pre-commit (all hooks)
         run: |
-          uv run ruff check .
-
-      - name: ruff formatter
-        run: |
-          uv run ruff format . --check
-
-      - name: mypy type checking
-        run: |
-          uv run mypy .
+          uv run pre-commit run --all-files --show-diff-on-failure
