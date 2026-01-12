@@ -1,8 +1,8 @@
 from dtu_mlops.model import Model
-from dtu_mlops.data import MyDataset
+from dtu_mlops.data import MedMNIST_dataset
 
 def train():
-    dataset = MyDataset("data/raw")
+    dataset = MedMNIST_dataset("data/raw")
     model = Model()
     # add rest of your training code here
 

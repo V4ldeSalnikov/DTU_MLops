@@ -3,7 +3,7 @@ from pathlib import Path
 import typer
 
 import medmnist
-from medmnist import INFO 
+from medmnist import INFO
 
 from torch.utils.data import Dataset, DataLoader
 from torchvision import transforms
@@ -13,12 +13,12 @@ class MedMNIST_dataset(Dataset):
     """MedMNIST data wrapper class"""
 
     def __init__(
-            self, 
+            self,
             data_path: Path,
             data_flag: str = "pathmnist",
             split: str = "train",
             ) -> None:
-        
+
         self.data_path = data_path
 
         info = INFO[data_flag]
@@ -34,9 +34,9 @@ class MedMNIST_dataset(Dataset):
         ])
 
         self.ds = DataClass(
-            root=str(data_path), 
-            split=split, 
-            download=True, 
+            root=str(data_path),
+            split=split,
+            download=True,
             transform=transform
             )
 
@@ -48,7 +48,7 @@ class MedMNIST_dataset(Dataset):
 
     def __getitem__(self, index: int):
         """Return a given sample from the dataset."""
-        return self.ds[index]  
+        return self.ds[index]
 
     # def preprocess(self, output_folder: Path) -> None:
     #     """Preprocess the raw data and save it to the output folder."""
@@ -59,13 +59,13 @@ class MedMNIST_dataset(Dataset):
 #     dataset.preprocess(output_folder)
 
 def main(
-        data_path: Path = Path("./MedMNIST_data"), 
-        data_flag: str = "pathmnist", 
+        data_path: Path = Path("./MedMNIST_data"),
+        data_flag: str = "pathmnist",
         split: str = "train",
         batch_size: int = 64,
         shuffle: bool = True
         ):
-    
+
     dataset = MedMNIST_dataset(data_path, data_flag = data_flag, split=split)
     loader = DataLoader(dataset, batch_size=batch_size, shuffle=shuffle)
 
