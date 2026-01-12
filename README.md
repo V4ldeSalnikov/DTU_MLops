@@ -1,4 +1,4 @@
-````markdown
+
 # DTU_MLops
 This is GitHub repository of Group 44 for [DTU 02476 Machine Learning Operation (MLO) Course](https://kurser.dtu.dk/course/02476).
 ## Goals of the project
@@ -61,4 +61,4 @@ Created using [mlops_template](https://github.com/SkafteNicki/mlops_template),
 a [cookiecutter template](https://github.com/cookiecutter/cookiecutter) for getting
 started with Machine Learning Operations (MLOps).
 
-````
+
