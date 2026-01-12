@@ -19,7 +19,8 @@ class MedMNIST_dataset(Dataset):
             split: str = "train",
             ) -> None:
 
-        self.data_path = data_path
+        self.data_path = Path(data_path)
+        self.data_path.mkdir(parents=True, exist_ok=True)
 
         info = INFO[data_flag]
         DataClass = getattr(medmnist, info["python_class"])
@@ -34,7 +35,7 @@ class MedMNIST_dataset(Dataset):
         ])
 
         self.ds = DataClass(
-            root=str(data_path),
+            root=str(self.data_path),
             split=split,
             download=True,
             transform=transform
