@@ -25,6 +25,10 @@ jobs:
           uv sync --locked --dev
           uv tree
 
+      - name: Pre-commit (all hooks)
+        run: |
+          uv run pre-commit run --all-files --show-diff-on-failure
+
       - name: ruff linter
         run: |
           uv run ruff check .
