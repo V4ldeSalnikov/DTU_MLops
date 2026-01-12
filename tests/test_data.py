@@ -1,9 +1,9 @@
 from torch.utils.data import Dataset
 
-from dtu_mlops.data import MyDataset
+from dtu_mlops.data import MedMNIST_dataset
 
 
 def test_my_dataset():
     """Test the MyDataset class."""
-    dataset = MyDataset("data/raw")
+    dataset = MedMNIST_dataset("data/raw")
     assert isinstance(dataset, Dataset)
