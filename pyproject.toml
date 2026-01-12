@@ -1,0 +1,57 @@
+[build-system]
+requires = ["uv_build>=0.9.22,<0.10.0"]
+build-backend = "uv_build"
+
+[project]
+name = "dtu_mlops"
+version = "0.0.1"
+description = "The main goal of the project is to build production MLOps pipeline for development of ML project. As for ML goal, it is to do multi-class classification for CT images datasets (COPYPASTE the names!!!) from MedMNIST. Class labels describe which part of the body is mainly featured in the images"
+authors = [
+  { name = "Group 44", email = "your@email.com" },
+]
+license = { file = "LICENSE" }
+keywords = ["machine learning", "MLOps"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Programming Language :: Python :: 3",
+]
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi==0.115.6",
+    "torch==2.6.0",
+    "typer==0.15.1",
+    "uvicorn==0.34.0",
+]
+
+[dependency-groups]
+dev = [
+    "coverage==7.6.9",
+    "invoke==2.2.0",
+    "pre-commit==4.1.0",
+    "pytest==8.3.4",
+    "ruff==0.1.3",
+    "mypy==1.19.1",
+    "mkdocs-material==9.7.1",
+    "mkdocstrings-python==2.0.1",
+]
+
+
+[tool.uv.sources]
+torch = [
+    { index = "pytorch-cpu" },
+]
+torchvision = [
+    { index = "pytorch-cpu" },
+]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.ruff]
+line-length = 120
+
+[tool.coverage.run]
+omit = ["tests/*"]
