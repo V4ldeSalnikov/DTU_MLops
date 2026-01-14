@@ -51,6 +51,32 @@ class MedMNIST_dataset(Dataset):
         """Return a given sample from the dataset."""
         return self.ds[index] 
 
+    def compute_mean_std(dataset):
+        #dataset is put into loader to process in batches (whole dataset might not fit into memory)
+        loader = DataLoader(dataset, batch_size=256, shuffle=False)
+        #counting variables are created (they are updated in each iteration of the loop and form basis for further calculations)
+        mean = 0.0
+        std = 0.0
+        total_images = 0
+        #iterating through the dataset
+        for images, _ in loader:
+            #getting number of images in the current batch (in last iteration it might be smaller than batch size)
+            n_img_batch = images.size(0)
+            #flattening images to calculate mean and std per channel(in case of this project images are grayscale, so n_channels = 1, but in MedMNIST dataset there are also RGB images, so for future compatibility this is implemented this way)
+            n_channels = images.size(1)
+            images = images.view(n_img_batch, n_channels, -1)
+            #calculating mean and std for current iteration and adding them to count variables. Mean.std are calculated per channel and then they are summed over all images in the batch
+            mean += images.mean(2).sum(0)
+            std += images.std(2).sum(0)
+            #updating total number of images processed so far
+            total_images += n_img_batch
+        #mean and std of dataset are calculated (as in loop means and stds were sums over all images, now they are need to be divided by number of those images to get actual mean and std)
+        mean /= total_images
+        std /= total_images
+        #mean and std of dataset is returned (before returning they are converted from tensors to lists for easier handling in intended use case (transforms.Normalize())
+        return mean.tolist(), std.tolist()
+
+
     # def preprocess(self, output_folder: Path) -> None:
     #     """Preprocess the raw data and save it to the output folder."""
 
