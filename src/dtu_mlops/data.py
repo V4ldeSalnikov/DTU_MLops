@@ -17,6 +17,7 @@ class MedMNIST_dataset(Dataset):
             data_path: Path,
             data_flag: str = "organamnist",
             split: str = "train",
+            data_stat: bool = True,
             ) -> None:
         #getting/creating data folder (to avoid downloading dataset each time they are stored locally and just loaded)
         self.data_path = Path(data_path)
@@ -24,10 +25,25 @@ class MedMNIST_dataset(Dataset):
         #retieving dataset info (for example, if data_flag = "organamnist", then organmnist dataset is retireved from MedMNIST dataset collection)
         info = INFO[data_flag]
         DataClass = getattr(medmnist, info["python_class"])
-        #getting information for normalization
-        output_channels = info["n_channels"] # RGB or Grayscale
-        mean = (0.5,) * output_channels
-        std = (0.5,) * output_channels
+        #getting information for normalization 
+        if (data_stat):
+            #temporary dataset instance is created to compute mean and std of dataset for normalization (in this case needed dataset is downloaded only once, in next step it will be loaded from local storage)
+            transform_temp = transforms.Compose([
+                transforms.ToTensor(),
+            ])
+            ds_temp = DataClass(
+                root=str(self.data_path),
+                split=split,
+                download=True,
+                transform=transform_temp
+                )
+            #mean and std are computed from the dataset
+            mean, std = MedMNIST_dataset.compute_mean_std(ds_temp)
+        else:
+            #using default mean and std values for normalization
+            output_channels = info["n_channels"] # RGB or Grayscale
+            mean = (0.5,) * output_channels
+            std = (0.5,) * output_channels
         #transformations of dataset to perform (changing to tensor for PyTorch training and normalization of dataset for better training performance)
         transform = transforms.Compose([
             transforms.ToTensor(),
@@ -91,11 +107,12 @@ def main(
         data_path: Path = Path("./MedMNIST_data"),
         data_flag: str = "organamnist",
         split: str = "train",
+        data_stat: bool = True,
         batch_size: int = 64,
         shuffle: bool = True
         ):
 
-    dataset = MedMNIST_dataset(data_path, data_flag = data_flag, split=split)
+    dataset = MedMNIST_dataset(data_path, data_flag = data_flag, split=split,data_stat = data_stat)
     loader = DataLoader(dataset, batch_size=batch_size, shuffle=shuffle)
 
     images, labels = next(iter(loader))
