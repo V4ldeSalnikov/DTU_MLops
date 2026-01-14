@@ -25,7 +25,7 @@ class MedMNIST_dataset(Dataset):
         #retieving dataset info (for example, if data_flag = "organamnist", then organmnist dataset is retireved from MedMNIST dataset collection)
         info = INFO[data_flag]
         DataClass = getattr(medmnist, info["python_class"])
-        #getting information for normalization 
+        #getting information for normalization
         if (data_stat):
             #temporary dataset instance is created to compute mean and std of dataset for normalization (in this case needed dataset is downloaded only once, in next step it will be loaded from local storage)
             transform_temp = transforms.Compose([
@@ -65,7 +65,7 @@ class MedMNIST_dataset(Dataset):
 
     def __getitem__(self, index: int):
         """Return a given sample from the dataset."""
-        return self.ds[index] 
+        return self.ds[index]
 
     def compute_mean_std(dataset):
         #dataset is put into loader to process in batches (whole dataset might not fit into memory)
