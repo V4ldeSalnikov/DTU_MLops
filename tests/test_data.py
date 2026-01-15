@@ -3,7 +3,7 @@ import torch
 import numpy as np
 from pathlib import Path
 from torch.utils.data import Dataset
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 from dtu_mlops.data import MedMNIST_dataset
 
 
