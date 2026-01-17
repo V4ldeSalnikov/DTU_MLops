@@ -18,7 +18,7 @@ class MedMNIST_dataset(Dataset):
             data_flag: str = "organamnist",
             split: str = "train",
             data_stat: bool = True,
-            size: int = 28# availible sizes are 28, 64, 128 and 254
+            size: int = 28# availible sizes are 28, 64, 128 and 224
             ) -> None:
         #getting/creating data folder (to avoid downloading dataset each time they are stored locally and just loaded)
         self.data_path = Path(data_path)
@@ -110,7 +110,7 @@ def main(
         data_path: Path = Path("./MedMNIST_data"),
         data_flag: str = "organamnist",
         split: str = "train",
-        size: int = 28, # availible sizes are 28, 64, 128 and 254
+        size: int = 28, # availible sizes are 28, 64, 128 and 224
         data_stat: bool = True,
         batch_size: int = 64,
         shuffle: bool = True
