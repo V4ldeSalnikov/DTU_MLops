@@ -1,0 +1,16 @@
+data_path: data/medmnist
+data_flag: organamnist
+model_type: resnet18
+epochs: 10
+batch_size: 64
+learning_rate: 0.001
+weight_decay: 0.0001
+num_workers: 4
+device: null  # auto-detect
+checkpoint_dir: models/checkpoints
+save_best: true
+wandb_name: "first_run"
+wandb_tags: []
+wandb_group: ""
+wandb_notes: ""
+wandb_job_type: ""
