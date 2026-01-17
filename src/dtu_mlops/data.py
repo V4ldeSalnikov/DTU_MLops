@@ -18,6 +18,7 @@ class MedMNIST_dataset(Dataset):
             data_flag: str = "organamnist",
             split: str = "train",
             data_stat: bool = True,
+            size: int = 224# availible sizes are 28, 64, 128 and 224
             ) -> None:
         #getting/creating data folder (to avoid downloading dataset each time they are stored locally and just loaded)
         self.data_path = Path(data_path)
@@ -35,6 +36,7 @@ class MedMNIST_dataset(Dataset):
                 root=str(self.data_path),
                 split=split,
                 download=True,
+                size = size,
                 transform=transform_temp
                 )
             #mean and std are computed from the dataset
@@ -54,6 +56,7 @@ class MedMNIST_dataset(Dataset):
             root=str(self.data_path),
             split=split,
             download=True,
+            size = size,
             transform=transform
             )
 
@@ -107,12 +110,13 @@ def main(
         data_path: Path = Path("./MedMNIST_data"),
         data_flag: str = "organamnist",
         split: str = "train",
+        size: int = 224, # availible sizes are 28, 64, 128 and 224
         data_stat: bool = True,
         batch_size: int = 64,
         shuffle: bool = True
         ):
 
-    dataset = MedMNIST_dataset(data_path, data_flag = data_flag, split=split,data_stat = data_stat)
+    dataset = MedMNIST_dataset(data_path, data_flag = data_flag, split=split,data_stat = data_stat, size=size)
     loader = DataLoader(dataset, batch_size=batch_size, shuffle=shuffle)
 
     images, labels = next(iter(loader))
