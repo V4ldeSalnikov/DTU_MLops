@@ -181,3 +181,5 @@ MedMNIST_data/
 data/medmnist/
 wandb/
 *.wandb
+.hydra/
+outputs/

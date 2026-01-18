@@ -3,16 +3,16 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 from pathlib import Path
 from typing import Optional
-import typer
 from tqdm import tqdm
 import wandb
 
-from dtu_mlops.config_utils import load_yaml_config, resolve_param, validate_required_keys
+from dtu_mlops.config_utils import resolve_param, validate_required_keys
 from dtu_mlops.data import MedMNIST_dataset
 from dtu_mlops.model import resnet18, resnet50
 
-
-app = typer.Typer()
+import hydra
+from omegaconf import DictConfig, OmegaConf
+import hydra.utils as hydra_utils
 
 
 def train_epoch(
@@ -120,9 +120,8 @@ def validate(
     return avg_loss, accuracy
 
 
-@app.command()
 def train(
-    train_config_path: Path = Path("configs/train.yaml"),
+    cfg: DictConfig,
     data_path: Optional[Path] = None,
     data_flag: Optional[str] = None,
     model_type: Optional[str] = None,
@@ -138,7 +137,7 @@ def train(
     """Train ResNet model on MedMNIST dataset
 
     Args:
-        train_config_path: YAML config file with training hyperparameters
+        cfg: Hydra DictConfig with training hyperparameters (already composed)
         data_path: Override for data directory (falls back to config/default)
         data_flag: Override MedMNIST dataset flag (e.g., "organamnist")
         model_type: Override model architecture ("resnet18" or "resnet50")
@@ -151,14 +150,13 @@ def train(
         checkpoint_dir: Override directory to save model checkpoints
         save_best: Override whether to save best model based on validation accuracy
     """
-    # Load training config then resolve hyperparameters (CLI ovrwrite config)
-    train_cfg = load_yaml_config(train_config_path)
+    # Use composed Hydra config then resolve hyperparameters (CLI overwrite config)
+    train_cfg = cfg
     validate_required_keys(
         train_cfg,
         [
             "data_path",
             "data_flag",
-            "model_type",
             "epochs",
             "batch_size",
             "learning_rate",
@@ -171,7 +169,6 @@ def train(
     )
     data_path = resolve_param(data_path, train_cfg, "data_path", as_path=True)
     data_flag = resolve_param(data_flag, train_cfg, "data_flag")
-    model_type = resolve_param(model_type, train_cfg, "model_type")
     epochs = resolve_param(epochs, train_cfg, "epochs")
     batch_size = resolve_param(batch_size, train_cfg, "batch_size")
     learning_rate = resolve_param(learning_rate, train_cfg, "learning_rate")
@@ -181,10 +178,29 @@ def train(
     checkpoint_dir = resolve_param(checkpoint_dir, train_cfg, "checkpoint_dir", as_path=True)
     save_best = resolve_param(save_best, train_cfg, "save_best")
 
+    # Resolve model settings without mutating cfg
+    model_cfg = train_cfg.get("model") if "model" in train_cfg else None
+    resolved_model_type = model_type
+    if resolved_model_type is None:
+        if model_cfg and model_cfg.get("model_type") is not None:
+            resolved_model_type = model_cfg.model_type
+        elif train_cfg.get("model_type"):
+            resolved_model_type = train_cfg.get("model_type")
+    if resolved_model_type is None:
+        raise KeyError("Missing model_type in config; set configs/model/*.yaml or override via CLI.")
+    model_type = resolved_model_type
+
+    num_classes = (
+        model_cfg.get("num_classes") if model_cfg and model_cfg.get("num_classes") is not None else train_cfg.get("num_classes", 11)
+    )
+    in_channels = (
+        model_cfg.get("in_channels") if model_cfg and model_cfg.get("in_channels") is not None else train_cfg.get("in_channels", 1)
+    )
+
     print("=" * 60)
     print("Training Configuration:")
     print(f"  Dataset: {data_flag}")
-    print(f"  Model: {model_type}")
+    print(f"  Model: {resolved_model_type}")
     print(f"  Epochs: {epochs}")
     print(f"  Batch size: {batch_size}")
     print(f"  Learning rate: {learning_rate}")
@@ -199,8 +215,8 @@ def train(
     print(f"Using device: {device}")
 
     # W&B settings
-    wandb_entity = "v4lde-danmarks-tekniske-universitet-dtu"
-    wandb_project = "DTU-MLops"
+    wandb_entity = train_cfg.get("wandb_entity", "v4lde-danmarks-tekniske-universitet-dtu")
+    wandb_project = train_cfg.get("wandb_project", "DTU-MLops")
     wandb_run = wandb.init(
         project=wandb_project,
         entity=wandb_entity,
@@ -222,6 +238,7 @@ def train(
             "device": str(device) if device else None,
             "checkpoint_dir": str(checkpoint_dir),
             "save_best": save_best,
+            "_hydra_config": OmegaConf.to_container(train_cfg, resolve=True),
         },
     )
 
@@ -266,12 +283,12 @@ def train(
 
     # Create model
     print(f"\nCreating {model_type} model...")
-    if model_type == "resnet18":
-        model = resnet18(num_classes=11, in_channels=1)
-    elif model_type == "resnet50":
-        model = resnet50(num_classes=11, in_channels=1)
+    if resolved_model_type == "resnet18":
+        model = resnet18(num_classes=num_classes, in_channels=in_channels)
+    elif resolved_model_type == "resnet50":
+        model = resnet50(num_classes=num_classes, in_channels=in_channels)
     else:
-        raise ValueError(f"Unknown model type: {model_type}. Choose 'resnet18' or 'resnet50'")
+        raise ValueError(f"Unknown model type: {resolved_model_type}. Choose 'resnet18' or 'resnet50'")
 
     model = model.to(device)
 
@@ -364,5 +381,31 @@ def train(
     print("=" * 60)
 
 
+@hydra.main(config_path="../../configs", config_name="config", version_base=None)
+def main(cfg: DictConfig) -> None:
+    # Hydra changes the working dir; resolve original project root for relative paths inside train()
+    orig_cwd = Path(hydra_utils.get_original_cwd())
+    # Adjust paths in cfg to absolute for data/checkpoints
+    if cfg.get("data_path"):
+        cfg.data_path = str((orig_cwd / cfg.data_path).resolve())
+    if cfg.get("checkpoint_dir"):
+        cfg.checkpoint_dir = str((orig_cwd / cfg.checkpoint_dir).resolve())
+
+    train(
+        cfg=cfg,
+        data_path=Path(cfg.data_path) if cfg.get("data_path") else None,
+        data_flag=cfg.get("data_flag"),
+        model_type=cfg.get("model_type"),
+        epochs=cfg.get("epochs"),
+        batch_size=cfg.get("batch_size"),
+        learning_rate=cfg.get("learning_rate"),
+        weight_decay=cfg.get("weight_decay"),
+        num_workers=cfg.get("num_workers"),
+        device=cfg.get("device"),
+        checkpoint_dir=Path(cfg.checkpoint_dir) if cfg.get("checkpoint_dir") else None,
+        save_best=cfg.get("save_best"),
+        )
+
+
 if __name__ == "__main__":
-    app()
+    main()
