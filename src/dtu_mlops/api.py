@@ -4,6 +4,8 @@ from PIL import Image
 import gradio as gr
 from medmnist import INFO
 from pathlib import Path
+import base64
+from io import BytesIO
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
 
@@ -41,77 +43,70 @@ def get_class_labels(data_flag: str = "organamnist") -> list[str]:
     #returning class labels
     return labels
 
-def classify_images(images) -> list[str]:
-    """Classify images using pretrained ResNet18 model."""
-    #
+def classify_images(images) -> str:
+    """Classify images and return formatted HTML with embedded images."""
     if images is None:
-        return []
-    # Handle single image passed as string
+        return "<p>No images uploaded</p>"
+    
     if isinstance(images, str):
         images = [images]
-    #
-    predis = []
-    #
-    for image in images:
-        #getting image to classify
-        image = Image.open(image).convert("RGB")#as pretrained resnet expects 3 channel input for now it needs to be converted to RGB (remove when loading of trained model changed)
-        input_tensor = preprocess(image).unsqueeze(0)
-        #classyfing image
+    
+    html = "<div style='display: flex; flex-wrap: wrap; gap: 30px; padding: 20px; justify-content: center;'>"
+    
+    for image_path in images:
+        img = Image.open(image_path).convert("RGB")
+        input_tensor = preprocess(img).unsqueeze(0)
+        
         with torch.no_grad():
-            output = model(input_tensor)#raw logits from model
-            probs = torch.nn.functional.softmax(output[0], dim=0)#converting them to probabilities
-            top_class = probs.argmax().item()#getting highest probability class index
-        #
-        if(top_class > 10):
+            output = model(input_tensor)
+            probs = torch.nn.functional.softmax(output[0], dim=0)
+            top_class = probs.argmax().item()
+        
+        if top_class > 10:
             top_class = 5
-        #
-        filename = Path(image).name
-        #getting label based on predicted index
+        
         label = class_labels[str(top_class)]
-        #
-        predis.append(label)
-    #
-    return predis
+        filename = Path(image_path).name
+        
+        # Convert image to base64
+        buffered = BytesIO()
+        img.save(buffered, format="JPEG")
+        img_str = base64.b64encode(buffered.getvalue()).decode()
+        
+        html += f"""
+        <div style='border: 2px solid #ddd; padding: 15px; border-radius: 8px; background: #f9f9f9; width: 280px;'>
+            <p style='font-size: 14px; color: #666; margin: 0 0 10px 0; text-align: center; font-weight: bold;'>{filename}</p>
+            <img src='data:image/jpeg;base64,{img_str}' style='width: 250px; height: 250px; object-fit: contain; display: block; margin: 0 auto 10px;'>
+            <p style='font-size: 18px; color: #0066cc; margin: 10px 0 0 0; text-align: center; font-weight: bold;'>{label}</p>
+        </div>
+        """
+    
+    html += "</div>"
+    return html
 
 model = load_model()
 preprocess = get_preprocessing_pipeline()
 class_labels = get_class_labels()
 
 with gr.Blocks() as demo:
-    gr.Markdown("# ResNet18 Image Classifier")
+    gr.Markdown("<h1 style='text-align: center;'> MLOps project - MedMNIST dataset Image Classifier</h1>")
     
-    with gr.Row():
+    with gr.Column():
+        gr.Markdown("<h2 style='text-align: center;'> Upload Images</h2>")
         images_input = gr.File(file_count="multiple", file_types=["image"], label="Upload Images")
-        submit_btn = gr.Button("Classify", scale=0)
-    
-    gallery = gr.Gallery(label="Results", columns=3, rows=2, height="auto")
-    
-    def process(files):
-        if not files:
-            return []
         
-        results = []
-        for f in files:
-            img = Image.open(f.name).convert("RGB")
-            input_tensor = preprocess(img).unsqueeze(0)
-            
-            with torch.no_grad():
-                output = model(input_tensor)
-                probs = torch.nn.functional.softmax(output[0], dim=0)
-                top_class = probs.argmax().item()
-            
-            if top_class > 10:
-                top_class = 5
-            
-            label = class_labels[str(top_class)]
-            filename = Path(f.name).name
-            results.append((img, f"{filename}\n{label}"))
+        with gr.Row():
+            submit_btn = gr.Button("Classify")
+            reset_btn = gr.Button("Reset")
         
-        return results
+        gr.Markdown("<h2 style='text-align: center;'> Results</h2>")
+        output = gr.HTML(label="Results")
     
-    submit_btn.click(process, inputs=images_input, outputs=gallery)
-
-
+    def reset():
+        return None, ""
+    
+    submit_btn.click(classify_images, inputs=images_input, outputs=output)
+    reset_btn.click(reset, outputs=[images_input, output])
 
 if __name__ == "__main__":
     demo.launch()

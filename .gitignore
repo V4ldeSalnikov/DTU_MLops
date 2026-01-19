@@ -178,6 +178,7 @@ cython_debug/
 
 # Local data / experiment artifacts
 MedMNIST_data/
+data/
 data/medmnist/
 wandb/
 *.wandb
