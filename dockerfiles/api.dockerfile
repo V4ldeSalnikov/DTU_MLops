@@ -1,4 +1,4 @@
-FROM ghcr.io/astral-sh/uv:python3.12-alpine AS base
+FROM ghcr.io/astral-sh/uv:python3.12-bookworm
 
 WORKDIR /app
 
@@ -18,5 +18,8 @@ RUN uv sync --frozen
 # Expose Gradio default port
 EXPOSE 7860
 
+# Set environment variable for Gradio server (to see it locally when running in Docker)
+ENV GRADIO_SERVER_NAME=0.0.0.0
+
 # Run Gradio app
-ENTRYPOINT ["uv", "run", "python", "src/dtu_mlops/api.py"]
+ENTRYPOINT ["uv", "run", "python", "-u", "src/dtu_mlops/api.py"]

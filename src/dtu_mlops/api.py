@@ -6,6 +6,7 @@ from medmnist import INFO
 from pathlib import Path
 import base64
 from io import BytesIO
+import os
 
 from dtu_mlops.model import resnet18
 
@@ -131,4 +132,5 @@ with gr.Blocks() as demo:
     reset_btn.click(reset, outputs=[images_input, output])
 #when file is run directly, launch the app
 if __name__ == "__main__":
-    demo.launch()
+    server_name = os.getenv("GRADIO_SERVER_NAME", "127.0.0.1")
+    demo.launch(server_name=server_name)
