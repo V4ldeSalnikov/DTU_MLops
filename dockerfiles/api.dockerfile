@@ -18,7 +18,7 @@ RUN uv sync --frozen
 # Expose Gradio default port
 EXPOSE 7860
 
-# Set environment variable for Gradio server (to see it locally when running in Docker)
+# Set environment variable for Gradio server (to see it locally)
 ENV GRADIO_SERVER_NAME=0.0.0.0
 
 # Run Gradio app
