@@ -3,6 +3,7 @@ from torchvision import models, transforms
 from PIL import Image
 import gradio as gr
 from medmnist import INFO
+from pathlib import Path
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
 
@@ -40,41 +41,77 @@ def get_class_labels(data_flag: str = "organamnist") -> list[str]:
     #returning class labels
     return labels
 
-def classify_image(image) -> str:
-    """Classify image using pretrained ResNet18 model."""
-   
-
-
-
-    #getting image to classify
-    image = Image.open(image).convert("RGB")#as pretrained resnet expects 3 channel input for now it needs to be converted to RGB (remove when loading of trained model changed)
-    input_tensor = preprocess(image).unsqueeze(0)
-    #classyfing image
-    with torch.no_grad():
-        output = model(input_tensor)#raw logits from model
-        probs = torch.nn.functional.softmax(output[0], dim=0)#converting them to probabilities
-        top_class = probs.argmax().item()#getting highest probability class index
+def classify_images(images) -> list[str]:
+    """Classify images using pretrained ResNet18 model."""
     #
-    if(top_class > 10):
-        top_class = 5
-    #getting label based on predicted index
-    label = class_labels[str(top_class)]
-    
-
-    return label
-
+    if images is None:
+        return []
+    # Handle single image passed as string
+    if isinstance(images, str):
+        images = [images]
+    #
+    predis = []
+    #
+    for image in images:
+        #getting image to classify
+        image = Image.open(image).convert("RGB")#as pretrained resnet expects 3 channel input for now it needs to be converted to RGB (remove when loading of trained model changed)
+        input_tensor = preprocess(image).unsqueeze(0)
+        #classyfing image
+        with torch.no_grad():
+            output = model(input_tensor)#raw logits from model
+            probs = torch.nn.functional.softmax(output[0], dim=0)#converting them to probabilities
+            top_class = probs.argmax().item()#getting highest probability class index
+        #
+        if(top_class > 10):
+            top_class = 5
+        #
+        filename = Path(image).name
+        #getting label based on predicted index
+        label = class_labels[str(top_class)]
+        #
+        predis.append(label)
+    #
+    return predis
 
 model = load_model()
 preprocess = get_preprocessing_pipeline()
 class_labels = get_class_labels()
 
-interface = gr.Interface(
-    fn=classify_image,
-    inputs=gr.Image(type="filepath", label="Upload Images"),
-    outputs=gr.Label(num_top_classes=1),
-    title="ResNet18 Image Classifier",
-    description="Upload one or more images and get predictions from a pretrained ResNet18 model.",
-)
+with gr.Blocks() as demo:
+    gr.Markdown("# ResNet18 Image Classifier")
+    
+    with gr.Row():
+        images_input = gr.File(file_count="multiple", file_types=["image"], label="Upload Images")
+        submit_btn = gr.Button("Classify", scale=0)
+    
+    gallery = gr.Gallery(label="Results", columns=3, rows=2, height="auto")
+    
+    def process(files):
+        if not files:
+            return []
+        
+        results = []
+        for f in files:
+            img = Image.open(f.name).convert("RGB")
+            input_tensor = preprocess(img).unsqueeze(0)
+            
+            with torch.no_grad():
+                output = model(input_tensor)
+                probs = torch.nn.functional.softmax(output[0], dim=0)
+                top_class = probs.argmax().item()
+            
+            if top_class > 10:
+                top_class = 5
+            
+            label = class_labels[str(top_class)]
+            filename = Path(f.name).name
+            results.append((img, f"{filename}\n{label}"))
+        
+        return results
+    
+    submit_btn.click(process, inputs=images_input, outputs=gallery)
+
+
 
 if __name__ == "__main__":
-    interface.launch()
+    demo.launch()
