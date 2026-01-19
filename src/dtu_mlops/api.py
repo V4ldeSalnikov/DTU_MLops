@@ -7,12 +7,25 @@ from pathlib import Path
 import base64
 from io import BytesIO
 
+from dtu_mlops.model import resnet18
+
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "mps" if torch.backends.mps.is_available() else "cpu")
 
-def load_model() -> torch.nn.Module:#For now pretrained model as I don't have a trained model available
-    """Load pretrained ResNet18 model."""
+def load_model(model_path: str | Path = "models/resnet18_best.pth") -> torch.nn.Module:
+    """Load trained ResNet18 model."""
+    #
+    model_path = Path(model_path)
+    #checking if model file exists
+    if not model_path.exists():
+        raise FileNotFoundError(f"Model not found at {model_path}")
     #loading  model
-    model = models.resnet18(pretrained=True)
+    model = resnet18(num_classes=11, in_channels=1)
+    checkpoint = torch.load(model_path, map_location=DEVICE)
+    # Extract model weights from checkpoint
+    if isinstance(checkpoint, dict) and "model_state_dict" in checkpoint:
+        model.load_state_dict(checkpoint["model_state_dict"])
+    else:
+        model.load_state_dict(checkpoint)
     #setting model to evaluation mode
     model.eval()
     return model.to(DEVICE)
@@ -54,7 +67,7 @@ def classify_images(images) -> str:
     html = "<div style='display: flex; flex-wrap: wrap; gap: 30px; padding: 20px; justify-content: center;'>"
     
     for image_path in images:
-        img = Image.open(image_path).convert("RGB")
+        img = Image.open(image_path).convert("L")  # Convert to grayscale
         input_tensor = preprocess(img).unsqueeze(0)
         
         with torch.no_grad():
