@@ -1,0 +1,34 @@
+defaults:
+  - model: resnet18
+  - _self_
+
+# Inference settings
+checkpoint:
+  source: huggingface  # 'huggingface' or 'local'
+  hf_repo: mikidzw/organamnist-resnet18
+  hf_filename: resnet18_best.pth
+  local_path: models/checkpoints/resnet18_best.pth  # fallback
+
+# Image preprocessing
+image:
+  target_size: 28  # Target image size for the model
+  normalize_mean: 0.5
+  normalize_std: 0.5
+  resize_method: bilinear  # 'bilinear', 'nearest', 'bicubic', 'lanczos'
+
+# Class names for OrganAMNIST
+class_names:
+  - Bladder
+  - Femur-left
+  - Femur-right
+  - Heart
+  - Kidney-left
+  - Kidney-right
+  - Liver
+  - Lung-left
+  - Lung-right
+  - Spleen
+  - Pelvis
+
+# Device
+device: cpu

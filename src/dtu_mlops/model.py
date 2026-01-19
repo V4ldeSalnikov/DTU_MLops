@@ -3,7 +3,7 @@ from torch import nn
 
 
 class BasicBlock(nn.Module):
-    """Basic building block for ResNet-18/34"""
+    """Basic building block for ResNet-18"""
     expansion = 1
 
     def __init__(self, in_channels: int, out_channels: int, stride: int = 1, downsample: nn.Module = None):
@@ -35,7 +35,7 @@ class BasicBlock(nn.Module):
 
 
 class Bottleneck(nn.Module):
-    """Bottleneck building block for ResNet-50/101/152"""
+    """Bottleneck building block for ResNet-50"""
     expansion = 4
 
     def __init__(self, in_channels: int, out_channels: int, stride: int = 1, downsample: nn.Module = None):
@@ -73,11 +73,7 @@ class Bottleneck(nn.Module):
 
 
 class ResNet(nn.Module):
-    """ResNet model for image classification
-
-    Supports ResNet-18, ResNet-34, ResNet-50, ResNet-101, ResNet-152
-    Adapted for small images like MedMNIST (28x28)
-    """
+    """ResNet model for image classification"""
 
     def __init__(
         self,
@@ -151,11 +147,11 @@ class ResNet(nn.Module):
 
 def resnet18(num_classes: int = 11, in_channels: int = 1) -> ResNet:
     """ResNet-18 model
-
+    
     Args:
         num_classes: Number of output classes (default: 11 for organamnist)
         in_channels: Number of input channels (default: 1 for grayscale)
-
+    
     Returns:
         ResNet-18 model
     """
@@ -164,18 +160,18 @@ def resnet18(num_classes: int = 11, in_channels: int = 1) -> ResNet:
 
 def resnet50(num_classes: int = 11, in_channels: int = 1) -> ResNet:
     """ResNet-50 model
-
+    
     Args:
         num_classes: Number of output classes (default: 11 for organamnist)
         in_channels: Number of input channels (default: 1 for grayscale)
-
+    
     Returns:
         ResNet-50 model
     """
     return ResNet(Bottleneck, [3, 4, 6, 3], num_classes=num_classes, in_channels=in_channels)
 
 
-# Keep the old Model class for backward compatibility
+# Kept the old Model class for backward compatibility
 class Model(nn.Module):
     """Just a dummy model to show how to structure your code"""
     def __init__(self):
@@ -192,12 +188,12 @@ if __name__ == "__main__":
     x = torch.rand(4, 1, 28, 28)  # Batch of 4 grayscale 28x28 images
     output = model18(x)
     print(f"ResNet-18 output shape: {output.shape}")  # Should be [4, 11]
-
+    
     # Test ResNet-50
     model50 = resnet50(num_classes=11, in_channels=1)
     output50 = model50(x)
     print(f"ResNet-50 output shape: {output50.shape}")  # Should be [4, 11]
-
+    
     # Count parameters
     params18 = sum(p.numel() for p in model18.parameters())
     params50 = sum(p.numel() for p in model50.parameters())
