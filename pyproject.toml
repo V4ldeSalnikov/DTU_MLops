@@ -29,6 +29,7 @@ dependencies = [
     "typer==0.15.1",
     "uvicorn==0.34.0",
     "wandb==0.18.7",
+    "gradio>=6.3.0",
 ]
 
 [dependency-groups]
