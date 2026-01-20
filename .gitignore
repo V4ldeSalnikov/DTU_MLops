@@ -184,3 +184,4 @@ wandb/
 *.wandb
 .hydra/
 outputs/
+models/checkpoints/
