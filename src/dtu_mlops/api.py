@@ -1,5 +1,5 @@
 import torch
-from torchvision import models, transforms
+from torchvision import transforms
 from PIL import Image
 import gradio as gr
 from medmnist import INFO
@@ -81,7 +81,7 @@ def classify_images(images) -> str:
             top_class = probs.argmax().item()
         #getting class label
         label = class_labels[str(top_class)]
-        #getting image filename 
+        #getting image filename
         filename = Path(image_path).name
         #Preparing image for embedding in HTML (base64 encoding)
         buffered = BytesIO()
