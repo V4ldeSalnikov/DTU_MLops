@@ -1,7 +1,6 @@
 """Evaluate a checkpoint from the Hugging Face Hub on the MedMNIST val split."""
 
 from pathlib import Path
-from typing import Optional
 
 import torch
 from huggingface_hub import hf_hub_download
