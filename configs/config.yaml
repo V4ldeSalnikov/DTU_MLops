@@ -13,6 +13,7 @@ num_workers: 4
 device: null  # auto-detect
 checkpoint_dir: models/checkpoints
 save_best: true
+train_samples: null
 
 # W&B logging
 wandb_name: "test hydra"

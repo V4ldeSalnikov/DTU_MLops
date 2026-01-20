@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Subset
 from pathlib import Path
 from typing import Optional
 from tqdm import tqdm
@@ -133,6 +133,7 @@ def train(
     device: Optional[str] = None,
     checkpoint_dir: Optional[Path] = None,
     save_best: Optional[bool] = None,
+    train_samples: Optional[int] = None,
 ) -> None:
     """Train ResNet model on MedMNIST dataset
 
@@ -149,6 +150,7 @@ def train(
         device: Override device to train on (None for auto-detect)
         checkpoint_dir: Override directory to save model checkpoints
         save_best: Override whether to save best model based on validation accuracy
+        train_samples: Number of training examples to use (None for full dataset)
     """
     # Use composed Hydra config then resolve hyperparameters (CLI overwrite config)
     train_cfg = cfg
@@ -165,6 +167,7 @@ def train(
             "device",
             "checkpoint_dir",
             "save_best",
+            "train_samples",
         ],
     )
     data_path = resolve_param(data_path, train_cfg, "data_path", as_path=True)
@@ -177,6 +180,7 @@ def train(
     device = resolve_param(device, train_cfg, "device")
     checkpoint_dir = resolve_param(checkpoint_dir, train_cfg, "checkpoint_dir", as_path=True)
     save_best = resolve_param(save_best, train_cfg, "save_best")
+    train_samples = resolve_param(train_samples, train_cfg, "train_samples")
 
     # Resolve model settings without mutating cfg
     model_cfg = train_cfg.get("model") if "model" in train_cfg else None
@@ -253,6 +257,16 @@ def train(
         split="train",
         data_stat=True,
     )
+
+    if train_samples is not None:
+        full_size = len(train_dataset)
+        if train_samples <= 0:
+            raise ValueError("train_samples must be positive when provided.")
+        if train_samples > full_size:
+            raise ValueError(f"train_samples={train_samples} exceeds dataset size {full_size}.")
+        indices = torch.randperm(full_size)[:train_samples]
+        train_dataset = Subset(train_dataset, indices.tolist())
+        print(f"Using train subset: {train_samples}/{full_size}")
 
     val_dataset = MedMNIST_dataset(
         data_path=data_path,
@@ -404,6 +418,7 @@ def main(cfg: DictConfig) -> None:
         device=cfg.get("device"),
         checkpoint_dir=Path(cfg.checkpoint_dir) if cfg.get("checkpoint_dir") else None,
         save_best=cfg.get("save_best"),
+        train_samples=cfg.get("train_samples"),
         )
 
 
