@@ -1,7 +1,6 @@
 from pathlib import Path
 from unittest.mock import MagicMock
 
-import pytest
 
 import dtu_mlops.model_registry as registry
 
