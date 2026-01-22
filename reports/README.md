@@ -88,9 +88,9 @@ will check the repositories and the code to verify your answers.
 * [ ] Create a data storage in GCP Bucket for your data and link this with your data version control setup (M21)
 * [ ] Create a trigger workflow for automatically building your docker images (M21)
 * [ ] Get your model training in GCP using either the Engine or Vertex AI (M21)
-* [ ] Create a FastAPI application that can do inference using your model (M22)
-* [ ] Deploy your model in GCP using either Functions or Run as the backend (M23)
-* [ ] Write API tests for your application and setup continues integration for these (M24)
+* [X] Create a FastAPI application that can do inference using your model (M22)
+* [X] Deploy your model in GCP using either Functions or Run as the backend (M23)
+* [X] Write API tests for your application and setup continues integration for these (M24)
 * [ ] Load test your application (M24)
 * [ ] Create a more specialized ML-deployment API using either ONNX or BentoML, or both (M25)
 * [X] Create a frontend for your API (M26)
@@ -172,7 +172,15 @@ We have used Hugging face spaces and Gradio frameworks. We have utilized HF Spac
 >
 > Answer:
 
---- question 4 fill here ---
+We manage dependencies with uv. Runtime dependencies generally live in pyproject.toml, and the exact, resolved versions are captured in uv.lock. Adding a package is done with uv add <pkg>
+Environment recreation is simple: uv installs the pinned versions from uv.lock.
+
+To get an identical setup, a new team member should:
+
+1. Install uv and have Python ≥3.12 available.
+2. Clone the repo.
+3. Create the project venv and install locked dependencies using uv sync.
+    That command builds .venv, installs both runtime and dev dependencies (including Hydra, W&B, Ruff, pytest, etc.), and honors the locked versions across platforms. Running uv run <command> (e.g., uv run pytest) ensures tools use the project environment without manual activation.
 
 ### Question 5
 
@@ -187,16 +195,8 @@ We have used Hugging face spaces and Gradio frameworks. We have utilized HF Spac
 > *experiments.*
 >
 > Answer:
+We used the DTU MLOps cookiecutter as the base. Core code lives under src/dtu_mlops/ (data loader, model definitions, training/evaluation scripts, data drifting detector). configs/ now holds Hydra configs - a main config.yaml plus model-specific configs for resnet18/50.  I think overall the folder structure follows the provided template without major changes
 
-We manage dependencies with uv. Runtime dependencies generally live in pyproject.toml, and the exact, resolved versions are captured in uv.lock. Adding a package is done with uv add <pkg>
-Environment recreation is simple: uv installs the pinned versions from uv.lock.
-
-To get an identical setup, a new team member should:
-
-1. Install uv and have Python ≥3.12 available.
-2. Clone the repo.
-3. Create the project venv and install locked dependencies using uv sync.
-    That command builds .venv, installs both runtime and dev dependencies (including Hydra, W&B, Ruff, pytest, etc.), and honors the locked versions across platforms. Running uv run <command> (e.g., uv run pytest) ensures tools use the project environment without manual activation.
 ### Question 6
 
 > **Did you implement any rules for code quality and format? What about typing and documentation? Additionally,**
@@ -210,7 +210,7 @@ To get an identical setup, a new team member should:
 >
 > Answer:
 
-We enforce code quality with pre-commit hooks: Ruff for linting (and optional auto-fix), uv lock --check to keep dependencies in sync. We use type hints throughout the codebase (in data/model/train modules). Formatting is handled by Ruff’s formatter in CI
+We enforce code quality with pre-commit hooks: Ruff for linting (and optional auto-fix), uv lock --check to keep dependencies in sync. We use type hints throughout the codebase (in data/model/train modules). Formatting is handled by Ruff’s formatter in CI. We believe these concepts are important to make code clean and readable (if we are talking about humans) or to make code more verifiable to detect coding agents hallucinations earlier (if we walk about AI)
 
 ## Version control
 
@@ -259,7 +259,7 @@ We enforce code quality with pre-commit hooks: Ruff for linting (and optional au
 >
 > Answer:
 
-We worked on feature branches instead of committing directly to main. We opened a pull request to merge into main. PRs enforced our CI (pre-commit hooks, Ruff, uv lock check, tests) and gave teammates a chance to review before code landed into main
+We worked on feature branches instead of committing directly to main (to enforce this we setted up branch protection). We opened a pull request to merge into main. PRs enforced our CI (pre-commit hooks, Ruff, uv lock check, tests) and gave teammates a chance to review before code landed into main.
 
 ### Question 10
 
@@ -274,7 +274,7 @@ We worked on feature branches instead of committing directly to main. We opened 
 >
 > Answer:
 
-We did not use DVC in this project. If we expanded beyond the fixed MedMNIST download, DVC would be useful for versioning larger or changing datasets
+We did not use DVC in this project. If we expanded beyond the fixed MedMNIST download, DVC would be useful for versioning larger or changing datasets. However we have used Hugging face datasets for storing data from API inference (which included build in version control)
 
 ### Question 11
 
@@ -290,9 +290,7 @@ We did not use DVC in this project. If we expanded beyond the fixed MedMNIST dow
 > *here: <weblink>*
 >
 > Answer:
-We run two GitHub Actions workflows in CI: linting (linting.yaml) and unit tests (tests.yaml). Both install dependencies via uv sync --locked --dev with the astral-sh/setup-uv action and its cache enabled to speed up installs. The linting workflow runs our full pre-commit suite (Ruff lint, trailing whitespace/EoF/YAML checks, uv lock --check) plus standalone ruff check and mypy on the codebase. The test workflow executes pytest with coverage across an OS (ubuntu-latest, macos-latest, windows-latest)
 
-Example of workflow can be seen here https://github.com/V4ldeSalnikov/DTU_MLops/pull/39/checks
 
 ## Running code and tracking experiments
 
@@ -311,7 +309,7 @@ Example of workflow can be seen here https://github.com/V4ldeSalnikov/DTU_MLops/
 >
 > Answer:
 
---- question 12 fill here ---
+We use Hydra configs. Defaults live in config.yaml and model variants in configs/model/. Hydra composes them and lets us override per run. Example: `uv run python src/dtu_mlops/train.py model=resnet50 epochs=5 batch_size=32 wandb_name="experiment_run"`
 
 ### Question 13
 
@@ -326,7 +324,7 @@ Example of workflow can be seen here https://github.com/V4ldeSalnikov/DTU_MLops/
 >
 > Answer:
 
---- question 13 fill here ---
+We rely on Hydra configs plus pinned dependencies to make runs reproducible. All experiment settings live in config.yaml and *.yaml; any CLI override (e.g., epochs=5 model=resnet50) is captured by Hydra. We log the fully resolved config into Weights & Biases alongside metrics and checkpoints, so each run records exactly which parameters and model variant were used. Dependencies are locked in uv.lock, and environments are recreated with uv sync --locked, ensuring the same package versions across machines/CI. To reproduce a run, a teammate can pull the repo, uv sync --locked, export their WANDB_API_KEY, and rerun train.py with the logged overrides from W&B.
 
 ### Question 14
 
@@ -373,7 +371,7 @@ Example of workflow can be seen here https://github.com/V4ldeSalnikov/DTU_MLops/
 >
 > Answer:
 
---- question 16 fill here ---
+We debugged with a mix of quick unit tests, but mostly using print/log statements inside the training loop and data pipeline. Pre-commit Ruff checks caught many simple issues (unused imports, style) before runtime. For configuration bugs (Hydra overrides, W&B setup), we ran the scripts with small values to check if everything runs correctly. CI failures (lint/tests) also guided fixes. We didn’t perform deep profiling, but we believe our code would benifit from it, but with relatively small training and evaluation datasets we didnt ran into heavy performance issues
 
 ## Working in the cloud
 
@@ -390,7 +388,7 @@ Example of workflow can be seen here https://github.com/V4ldeSalnikov/DTU_MLops/
 >
 > Answer:
 
---- question 17 fill here ---
+We have not used Google Cloud since we thought that for our project such level of complexity is not required. However we have used Hugging face Datasets to store data and Hugging face Spaces to run inference
 
 ### Question 18
 
@@ -405,7 +403,6 @@ Example of workflow can be seen here https://github.com/V4ldeSalnikov/DTU_MLops/
 >
 > Answer:
 
---- question 18 fill here ---
 
 ### Question 19
 
@@ -414,7 +411,8 @@ Example of workflow can be seen here https://github.com/V4ldeSalnikov/DTU_MLops/
 >
 > Answer:
 
---- question 19 fill here ---
+We are storing images and "labels" from our simulated inference (note that to speed up the process we uploaded "inference data" with labels directly to the dataset bypassing Hugging face pace, however we have checked and insured that data from inference also would record correctly)
+[Image](figures/Screenshot 2026-01-22 at 21.36.25.png)
 
 ### Question 20
 
@@ -423,7 +421,7 @@ Example of workflow can be seen here https://github.com/V4ldeSalnikov/DTU_MLops/
 >
 > Answer:
 
---- question 20 fill here ---
+
 
 ### Question 21
 
@@ -432,7 +430,7 @@ Example of workflow can be seen here https://github.com/V4ldeSalnikov/DTU_MLops/
 >
 > Answer:
 
---- question 21 fill here ---
+
 
 ### Question 22
 
@@ -447,7 +445,7 @@ Example of workflow can be seen here https://github.com/V4ldeSalnikov/DTU_MLops/
 >
 > Answer:
 
---- question 22 fill here ---
+We have trained model locally to save time and resources. For our use case local GPU was enough
 
 ## Deployment
 
@@ -510,7 +508,7 @@ Example of workflow can be seen here https://github.com/V4ldeSalnikov/DTU_MLops/
 >
 > Answer:
 
---- question 26 fill here ---
+We didn’t build production monitoring yet. We thing monitoring would help to show how our models perform over time and make make the service debuggable and guide retraining/rollbacks.
 
 ## Overall discussion of project
 
@@ -529,7 +527,7 @@ Example of workflow can be seen here https://github.com/V4ldeSalnikov/DTU_MLops/
 >
 > Answer:
 
---- question 27 fill here ---
+We have not used google cloud, only cloud solution we have used is Hugging face. We think it is better alternative for course project both ideologically - due to platform focus on open source and open science and also financially - Hugging face provides free ZeroGPU instances and a lot of storage for datasets/models
 
 ### Question 28
 
@@ -545,7 +543,7 @@ Example of workflow can be seen here https://github.com/V4ldeSalnikov/DTU_MLops/
 >
 > Answer:
 
---- question 28 fill here ---
+We have implemented drift detection and tested that is sucesfully detects changes of dataset from OrganAMNIST to OrganCMIST. We have impelemented model registry, where models are stored and after new model is trained is triggers the process that checks if new model performs better on validation set then current production model
 
 ### Question 29
 
