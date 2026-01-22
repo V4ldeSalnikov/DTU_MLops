@@ -60,6 +60,8 @@ dev = [
     "mypy==1.19.1",
     "mkdocs-material==9.7.1",
     "mkdocstrings-python==2.0.1",
+    "pytest-cov>=6.3.0",
+    "pillow>=12.1.0",
 ]
 
 [tool.uv]
