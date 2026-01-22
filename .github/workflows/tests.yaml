@@ -30,5 +30,13 @@ jobs:
 
       - name: Run tests & coverage
         run: |
-          uv run coverage run -m pytest tests/
-          uv run coverage report -m
+          uv run pytest \
+            --cov=src/dtu_mlops \
+            --cov-report=term-missing \
+            --cov-report=html
+      
+      - name: Upload coverage HTML report
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-html-${{ matrix.operating-system }}
+          path: htmlcov
