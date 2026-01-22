@@ -29,11 +29,9 @@ jobs:
           uv tree
 
       - name: Run tests & coverage
-        run: |
-          uv run pytest \
-            --cov=src/dtu_mlops \
-            --cov-report=term-missing \
-            --cov-report=html
+        env:
+          WANDB_MODE: disabled
+        run: uv run pytest --cov=src/dtu_mlops --cov-report=term-missing --cov-report=html
 
       - name: Upload coverage HTML report
         uses: actions/upload-artifact@v4
