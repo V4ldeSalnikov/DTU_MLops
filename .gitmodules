@@ -1,3 +1,6 @@
 [submodule "hf_integration/MLOps_gradio"]
 	path = hf_integration/MLOps_gradio
 	url = https://huggingface.co/spaces/InfiniteLobster/MLOps_gradio
+[submodule "hf_integration/API"]
+	path = hf_integration/API
+	url = https://huggingface.co/spaces/G44mlops/API
