@@ -9,6 +9,7 @@ import wandb
 from dtu_mlops.config_utils import resolve_param, validate_required_keys
 from dtu_mlops.data import MedMNIST_dataset
 from dtu_mlops.model import resnet18, resnet50
+from dtu_mlops.model_registry import log_artifact, promote_and_demote, promote_check
 
 import hydra
 from omegaconf import DictConfig, OmegaConf
@@ -376,15 +377,51 @@ def train(
             'data_flag': data_flag,
         }
 
+        run_name = (train_cfg.get("wandb_name") or model_type).replace(" ", "_")
+
         # Save last checkpoint
-        torch.save(checkpoint, checkpoint_dir / f"{model_type}_last.pth")
+        torch.save(checkpoint, checkpoint_dir / f"{run_name}_last.pth")
 
         # Save best checkpoint
         if save_best and val_acc > best_val_acc:
             best_val_acc = val_acc
-            torch.save(checkpoint, checkpoint_dir / f"{model_type}_best.pth")
+            torch.save(checkpoint, checkpoint_dir / f"{run_name}_best.pth")
             print(f"Saved best model with validation accuracy: {val_acc:.2f}%")
             wandb_run.summary["best_val_acc"] = best_val_acc
+
+    # Log to model registry and handle promotion
+    run_name = (train_cfg.get("wandb_name") or model_type).replace(" ", "_")
+    best_ckpt_path = checkpoint_dir / f"{run_name}_best.pth" if save_best else checkpoint_dir / f"{run_name}_last.pth"
+    artifact_name = f"{run_name}_best" if save_best else f"{run_name}_last"
+    metrics_payload = {
+        "best_val_acc": best_val_acc,
+        "val_acc": val_acc,
+        "val_loss": val_loss,
+        "train_acc": train_acc,
+        "train_loss": train_loss,
+    }
+    logged_artifact = log_artifact(
+        run=wandb_run,
+        checkpoint_path=best_ckpt_path,
+        config=OmegaConf.to_container(train_cfg, resolve=True),
+        metrics=metrics_payload,
+        artifact_name=artifact_name,
+        aliases=["staging"],
+    )
+
+    if promote_check(
+        new_score=best_val_acc,
+        artifact_name=artifact_name,
+        entity=wandb_entity,
+        project=wandb_project,
+        metric_key="best_val_acc",
+    ):
+        promote_and_demote(
+            new_artifact=logged_artifact,
+            artifact_name=artifact_name,
+            entity=wandb_entity,
+            project=wandb_project,
+        )
 
     wandb_run.finish()
 
