@@ -27,7 +27,7 @@ dependencies = [
     "torchvision>=0.21.0",
     "tqdm>=4.67.1",
     "typer==0.15.1",
-    "uvicorn==0.34.0",
+    "uvicorn==0.40.0",
     "wandb==0.18.7",
     "gradio>=6.3.0",
     "torchdrift>=0.1.0.post1",
