@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any, Dict, Mapping
+from typing import Any, Dict
 
 import yaml
 
@@ -16,7 +16,7 @@ def load_yaml_config(path: Path) -> Dict[str, Any]:
 
 def resolve_param(
     cli_value: Any,
-    cfg: Mapping[str, Any],
+    cfg: Dict[str, Any],
     key: str,
     *,
     as_path: bool = False,
@@ -29,7 +29,7 @@ def resolve_param(
     raise KeyError(f"Missing required config key: {key}")
 
 
-def validate_required_keys(cfg: Mapping[str, Any], required: list[str]) -> None:
+def validate_required_keys(cfg: Dict[str, Any], required: list[str]) -> None:
     """Ensure required keys are present; raise KeyError if any are missing."""
     missing = [k for k in required if k not in cfg]
     if missing:
