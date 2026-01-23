@@ -491,7 +491,7 @@ Additionally, it contained an authentication part, due to concerns of unconnecte
 
 For access use: https://huggingface.co/spaces/G44mlops/API, with the credentials below:
 
-username: user
+username: user and 
 password: sdgagdss-214qwdsfa-1fds12-fdAW132
 
 ### Question 24
