@@ -356,7 +356,7 @@ We rely on Hydra configs plus pinned dependencies to make runs reproducible. All
 >
 > Answer:
 
---- question 15 fill here ---
+--- One of docker files that we have devoloped was for deployment. To build this image following command was used: 'docker build -f dockerfiles/api.dockerfile -t mlops-api:latest .'. As for running it: 'docker run -d -p 7860:7860 --name mlops-api mlops-api:latest'. Due to usage of hugging face and size of the docker image (3.6 Gb on docker deskopt) we used just gradio app for deployment (as it is compatible with hugging face). Nevertheless, for now, this image can be used to work locally between machines and is stored there: https://dtudk-my.sharepoint.com/:f:/r/personal/s253711_dtu_dk/Documents/Courses/Courses%20projects/MLOps?csf=1&web=1&e=K7s02H---
 
 ### Question 16
 
@@ -403,6 +403,7 @@ We have not used Google Cloud since we thought that for our project such level o
 >
 > Answer:
 
+--- We didn't use GCP, but hugging face for deployment. It runs on CPU basic version, which entitle: 2vCPU and 16 GB of RAM. The app is run onm one python file, which contains backend function plus frontend gradio app.---
 
 ### Question 19
 
@@ -421,7 +422,7 @@ We are storing images and "labels" from our simulated inference (note that to sp
 >
 > Answer:
 
-
+--- We used hugging face for deployment, so we do not have GCP artifact registry. We also used gradio app method to do so, so we do not have different docker images (As our was too big for deployment in free version). ---
 
 ### Question 21
 
@@ -430,7 +431,7 @@ We are storing images and "labels" from our simulated inference (note that to sp
 >
 > Answer:
 
-
+--- As before, we didn't use GCP for deployment and we didn't use docker images to do so. For this reason we can't show history of images as we don't have it. --- 
 
 ### Question 22
 
@@ -462,7 +463,7 @@ We have trained model locally to save time and resources. For our use case local
 >
 > Answer:
 
---- question 23 fill here ---
+--- We did manage to write an API for our model. We used Gradio to do this. We decided to use Gradio as it is compatible with hugging face, which we selected as our deployment space (due to experience of some group member with it). We created needed functions in api.py file plus gradio interface. It contains basically two fields and two buttons. One field for receiving images and second to give results of prediction. One button was to start classification and second to reset given images. Two versions of application were created in total. One local and one to work on hugging face. The local version expected model to be stored locally and dockerfile was prepared to create image of application. The second version was prepared for deployment on hugging face. It additionally contained authentication part (due to concerns of some unconnected people uploading inappropriate images (like real unanonymised CT images)), was linked to model and dataset deployed on hugging face and collected given images to linked dataset (to gather data for drift detection). ---
 
 ### Question 24
 
@@ -478,7 +479,7 @@ We have trained model locally to save time and resources. For our use case local
 >
 > Answer:
 
---- question 24 fill here ---
+--- We managed to deploy our API both locally and in cloud. For local version it could be deployed from code itself or from docker image. For cloud deployment we used hugging face with gradio option. The additional step, that we had to do and was not mentioned previously, was change from uv ('pyproject.toml' and 'uv.lock') dependencies to 'requirments.txt' as it refused to work otherwise. To use the application user has to log in using credentials. Usage of this application was limited in this way due to earlier mentioned concerns. Additionally this hugging face application deployment integrated well with receiver database and model deployed on hugging face.  ---
 
 ### Question 25
 
