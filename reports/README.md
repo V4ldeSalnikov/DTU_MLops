@@ -229,7 +229,16 @@ We enforce code quality with pre-commit hooks: Ruff for linting (and optional au
 >
 > Answer:
 
---- question 7 fill here ---
+We have implemented 50 unit tests in total. While there are more unit tests that we could have implemented, we focused mostly on the core modules. These include: 
+
+ 1. Training pipeline: Tests for the trainining and validation loops, correct switching between training and validation     modes and correct input label handling
+
+ 2. Model construction: Tests for the forward pass output shapes for both ResNet18 and Resnet50, block behavior and weight initialization
+
+ 3. Data pipeline: Tests for the dataset's length, the output shapes and types, correct normalization and computation for mean and standard deviation values.
+
+ Along with the above core modules we tested some utility modules, such as configuration loading and resolution (config_utils.py), weights and biases model registry helpers (model_registry.py), evaluation of the model (evaluation.py) and the API functions (api.py). 
+ Note that we used mocking to avoid real downloads or network calls!
 
 ### Question 8
 
@@ -244,7 +253,7 @@ We enforce code quality with pre-commit hooks: Ruff for linting (and optional au
 >
 > Answer:
 
---- question 8 fill here ---
+The total code coverage of our project is 68%, which includes most source files in src/dtu_mlops, excluding drift_detection.py, eval_hf.py and upload_organcmnist_subset.py. The overall percentage is reduced by these few scripts that are not part of the core modules, since unit tests were not implemented for them. Achieving 100% of coverage would not guarantee that the code is error free. Code coverage just measures how many lines of code are run while tests are executed. That being said, bugs can still exist since there may be cases that are not covered by the implemented tests. Code coverage is a useful indicator of test completeness rather than a guarantee of correctness.
 
 ### Question 9
 
@@ -291,6 +300,10 @@ We did not use DVC in this project. If we expanded beyond the fixed MedMNIST dow
 >
 > Answer:
 
+We have organized our continuous integration into two workflows, one for code formatting and one for unit testing with code coverage. Both workflows are triggered automatically on every push/pull request to the main branch in order for all new changes to be validated before merging.
+For code formatting we have linting.yaml which runs on Ubuntu and checks the quality of the code using pre-commit hooks. At first, it installs dependencies via uv and then executes pre-commit run --all-files, enforcing consistent formatting. This way we keep our repository consistent. 
+For the unit testing we have tests.yaml which runs our pytest unit tests and produces the code coverage reports. This workflow runs in a matrix setup across Ubuntu, Windows and macOS and generates a terminal code coverage summary along with an HTML report (index.html). The coverage output is uploaded as an artifact under Actions section for easy inspection. 
+We use caching to speed up repeated workflow executions by reusing previously downloaded packages.
 
 ## Running code and tracking experiments
 
@@ -501,7 +514,9 @@ We have trained model locally to save time and resources. For our use case local
 >
 > Answer:
 
---- question 25 fill here ---
+We used pytest for unit testing our API. The test focuses mostly on the helper functions in api.py, such as ensuring that the model loading is done correctly handling errors when the checkpoint file is missing, preprocessing pipeline is constructed with the correct transforms and the extraction of the class labels works as expected. We used mocking to avoid downloading real models or doing external network calls.
+
+While we did not perform full load testing of the deployed API in our project, if we were to do load testing we would have to run the Gradio service locally or in a container and simulate users sending image requests simultaneously. Then we could potentially report latency and errors while increasing the number of simultaneous requests until the service crashes.
 
 ### Question 26
 
