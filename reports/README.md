@@ -341,7 +341,14 @@ We rely on Hydra configs plus pinned dependencies to make runs reproducible. All
 >
 > Answer:
 
---- question 14 fill here ---
+As seen in the first image of [Weights and Biases](figures/logging.png) we are mainly tracking loss/acurracy for both training and validation
+
+For training we log loss and accuracy to check that model indeed learns (likely we are not using DINO and can check if training works by looking at loss that goes down)
+
+For validation we check accuracy to investigate how our model generalizes to unseen data.
+
+Since this course it not model centric we are not doing to much of hyperparameter tuning and this validation dataset performance can be viewed as unbiased estimate of test performance
+
 
 ### Question 15
 
@@ -413,7 +420,7 @@ We have not used Google Cloud since we thought that for our project such level o
 > Answer:
 
 We are storing images and "labels" from our simulated inference (note that to speed up the process we uploaded "inference data" with labels directly to the dataset bypassing Hugging face pace, however we have checked and insured that data from inference also would record correctly)
-[Image](figures/Screenshot 2026-01-22 at 21.36.25.png)
+[Image](figures/dataset.png)
 
 ### Question 20
 
@@ -431,7 +438,7 @@ We are storing images and "labels" from our simulated inference (note that to sp
 >
 > Answer:
 
---- As before, we didn't use GCP for deployment and we didn't use docker images to do so. For this reason we can't show history of images as we don't have it. --- 
+--- As before, we didn't use GCP for deployment and we didn't use docker images to do so. For this reason we can't show history of images as we don't have it. ---
 
 ### Question 22
 
@@ -561,7 +568,29 @@ We have implemented drift detection and tested that is sucesfully detects change
 >
 > Answer:
 
---- question 29 fill here ---
+[Project overview](figures/image-project.png) diagram not 100% accurate look at the description below :
+
+The starting point is our local model training :
+1. We load OrganAMNIST dataset (subset of medmnist)
+2. We created training scripts for model training (primarily utilizing ResNet 18, although we did couple runs with ResNet 50)
+3. We setup Weights and bias logging + Hydra configuration
+
+The second stage is model evaluation and "staging" :
+1. We evaluate our model on validation set
+2. Denpending on the model performance we either assign "staging" label or "production" label in Weights and Biases model reistry
+3. We manually upload best model to Hugging face
+
+Third stage is Deployment and Inference
+1. We have created Docker container to test inference locally
+2. We implemented Gradio app and configured hugging face space
+3. We have set up dataset connected to hugging face space to record inference data
+
+Last stage in drift detection :
+1. We take (simulated) inference data from hugging face
+2. We setup drift detector (by extracting features using our ResNet model) and using KernelMMDDriftDetector from torchdrift on top of it
+
+Unfortunatelly we didn't have time to implement finetuning or the model and create more comprehensive contrinious machine learning pipline with training and deployment on cloud
+
 
 ### Question 30
 
@@ -575,7 +604,13 @@ We have implemented drift detection and tested that is sucesfully detects change
 >
 > Answer:
 
---- question 30 fill here ---
+I think mostly we struggled "practically" during two phases - the start of the project and deployment. Also more generally it was hard to get used to "MLops mindset"
+
+During the start of the project there was a lot of uncertantanty and overall discussion around what tools/dataset/frameworks/models to pick, also for example doint first Github Actions CI pipline was also challenging. Deployment we faced king of similiar issue, since we did not want to use Google cloud we needed to find workaround how to fit our model and all required dependencies on Hugging face spaces
+
+Also it was a bit unusual for us to adapt to MLops way of thinking about ML system. Since most ML related courses at university are mainly "model centric" or "theory centric", where we just pick dataset and focus on modelling part in isolation - here we have to think about scallability, reliability and overall flow of the system.
+
+We think that this course was definetely very useful to feel the gap between more "academic style education" and "real world"
 
 ### Question 31
 
@@ -593,4 +628,12 @@ We have implemented drift detection and tested that is sucesfully detects change
 > *We have used ChatGPT to help debug our code. Additionally, we used GitHub Copilot to help write some of our code.*
 > Answer:
 
---- question 31 fill here ---
+Student s253711 was reponsible for docker containerization, Gradio frontend API for inference and Hugging face spaces setup
+Student s214397 was responsible for some of the unit testing
+Student s253102 was reponsible for majority of unit testing, some parts of CI/CD pipline and data loading
+Student s253816 was responsible for training code
+Student s252682 was responsible for initial setup (cookie cutter template, CI/CD), Weights and Biases logging and Hydra Config, uploading model and simulation of inference to Hugging face, data drift detection
+
+GenAI statement :
+
+We used ChatGPT to help with code debugging and understand some frameworks more deeply. We have use coding agents to write some parts of the code
