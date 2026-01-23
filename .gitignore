@@ -185,3 +185,4 @@ wandb/
 .hydra/
 outputs/
 models/checkpoints/
+logs/
