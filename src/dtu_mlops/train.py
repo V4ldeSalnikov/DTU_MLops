@@ -5,6 +5,7 @@ from pathlib import Path
 from typing import Optional
 from tqdm import tqdm
 import wandb
+from loguru import logger
 
 from dtu_mlops.config_utils import resolve_param, validate_required_keys
 from dtu_mlops.data import MedMNIST_dataset
@@ -14,6 +15,10 @@ from dtu_mlops.model_registry import log_artifact, promote_and_demote, promote_c
 import hydra
 from omegaconf import DictConfig, OmegaConf
 import hydra.utils as hydra_utils
+
+LOG_DIR = Path("logs")
+LOG_DIR.mkdir(exist_ok=True)
+logger.add(LOG_DIR / "train.log", rotation="5 MB", retention="7 days", level="INFO", enqueue=True)
 
 
 def train_epoch(
@@ -202,22 +207,22 @@ def train(
         model_cfg.get("in_channels") if model_cfg and model_cfg.get("in_channels") is not None else train_cfg.get("in_channels", 1)
     )
 
-    print("=" * 60)
-    print("Training Configuration:")
-    print(f"  Dataset: {data_flag}")
-    print(f"  Model: {resolved_model_type}")
-    print(f"  Epochs: {epochs}")
-    print(f"  Batch size: {batch_size}")
-    print(f"  Learning rate: {learning_rate}")
-    print(f"  Weight decay: {weight_decay}")
-    print("=" * 60)
+    logger.info("=" * 60)
+    logger.info("Training Configuration:")
+    logger.info(f"  Dataset: {data_flag}")
+    logger.info(f"  Model: {resolved_model_type}")
+    logger.info(f"  Epochs: {epochs}")
+    logger.info(f"  Batch size: {batch_size}")
+    logger.info(f"  Learning rate: {learning_rate}")
+    logger.info(f"  Weight decay: {weight_decay}")
+    logger.info("=" * 60)
 
     # Set device
     if device is None:
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     else:
         device = torch.device(device)
-    print(f"Using device: {device}")
+    logger.info(f"Using device: {device}")
 
     # W&B settings
     wandb_entity = train_cfg.get("wandb_entity", "v4lde-danmarks-tekniske-universitet-dtu")
@@ -251,7 +256,7 @@ def train(
     checkpoint_dir.mkdir(parents=True, exist_ok=True)
 
     # Load datasets
-    print("\nLoading datasets...")
+    logger.info("Loading datasets...")
     train_dataset = MedMNIST_dataset(
         data_path=data_path,
         data_flag=data_flag,
@@ -267,7 +272,7 @@ def train(
             raise ValueError(f"train_samples={train_samples} exceeds dataset size {full_size}.")
         indices = torch.randperm(full_size)[:train_samples]
         train_dataset = Subset(train_dataset, indices.tolist())
-        print(f"Using train subset: {train_samples}/{full_size}")
+        logger.info(f"Using train subset: {train_samples}/{full_size}")
 
     val_dataset = MedMNIST_dataset(
         data_path=data_path,
@@ -293,11 +298,11 @@ def train(
         pin_memory=True if device.type == "cuda" else False,
     )
 
-    print(f"Train samples: {len(train_dataset)}")
-    print(f"Validation samples: {len(val_dataset)}")
+    logger.info(f"Train samples: {len(train_dataset)}")
+    logger.info(f"Validation samples: {len(val_dataset)}")
 
     # Create model
-    print(f"\nCreating {model_type} model...")
+    logger.info(f"Creating {model_type} model...")
     if resolved_model_type == "resnet18":
         model = resnet18(num_classes=num_classes, in_channels=in_channels)
     elif resolved_model_type == "resnet50":
@@ -310,8 +315,8 @@ def train(
     # Count parameters
     total_params = sum(p.numel() for p in model.parameters())
     trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
-    print(f"Total parameters: {total_params:,}")
-    print(f"Trainable parameters: {trainable_params:,}")
+    logger.info(f"Total parameters: {total_params:,}")
+    logger.info(f"Trainable parameters: {trainable_params:,}")
 
     # Define loss function and optimizer
     criterion = nn.CrossEntropyLoss()
@@ -331,22 +336,21 @@ def train(
     )
 
     # Training loop
-    print("\nStarting training...")
+    logger.info("Starting training...")
     best_val_acc = 0.0
 
     for epoch in range(1, epochs + 1):
-        print(f"\nEpoch {epoch}/{epochs}")
-        print("-" * 60)
+        logger.info(f"Epoch {epoch}/{epochs}")
 
         # Train
         train_loss, train_acc = train_epoch(
             model, train_loader, criterion, optimizer, device, epoch
         )
-        print(f"Train Loss: {train_loss:.4f} | Train Acc: {train_acc:.2f}%")
+        logger.info(f"Train Loss: {train_loss:.4f} | Train Acc: {train_acc:.2f}%")
 
         # Validate
         val_loss, val_acc = validate(model, val_loader, criterion, device)
-        print(f"Val Loss: {val_loss:.4f} | Val Acc: {val_acc:.2f}%")
+        logger.info(f"Val Loss: {val_loss:.4f} | Val Acc: {val_acc:.2f}%")
 
         # Update learning rate
         scheduler.step(val_acc)
@@ -386,7 +390,7 @@ def train(
         if save_best and val_acc > best_val_acc:
             best_val_acc = val_acc
             torch.save(checkpoint, checkpoint_dir / f"{run_name}_best.pth")
-            print(f"Saved best model with validation accuracy: {val_acc:.2f}%")
+            logger.info(f"Saved best model with validation accuracy: {val_acc:.2f}%")
             wandb_run.summary["best_val_acc"] = best_val_acc
 
     # Log to model registry and handle promotion
@@ -425,11 +429,11 @@ def train(
 
     wandb_run.finish()
 
-    print("\n" + "=" * 60)
-    print("Training completed!")
-    print(f"Best validation accuracy: {best_val_acc:.2f}%")
-    print(f"Model checkpoints saved to: {checkpoint_dir}")
-    print("=" * 60)
+    logger.info("=" * 60)
+    logger.info("Training completed!")
+    logger.info(f"Best validation accuracy: {best_val_acc:.2f}%")
+    logger.info(f"Model checkpoints saved to: {checkpoint_dir}")
+    logger.info("=" * 60)
 
 
 @hydra.main(config_path="../../configs", config_name="config", version_base=None)

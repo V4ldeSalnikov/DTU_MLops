@@ -195,6 +195,7 @@ To get an identical setup, a new team member should:
 > *experiments.*
 >
 > Answer:
+
 We used the DTU MLOps cookiecutter as the base. Core code lives under src/dtu_mlops/ (data loader, model definitions, training/evaluation scripts, data drifting detector). configs/ now holds Hydra configs - a main config.yaml plus model-specific configs for resnet18/50.  I think overall the folder structure follows the provided template without major changes
 
 ### Question 6
