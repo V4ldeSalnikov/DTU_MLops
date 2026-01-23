@@ -57,7 +57,7 @@ cu126 = [
 [dependency-groups]
 dev = [
     "coverage==7.6.9",
-    "invoke==2.2.0",
+    "invoke==2.2.1",
     "pre-commit==4.1.0",
     "pytest==8.3.4",
     "ruff==0.1.3",
