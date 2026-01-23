@@ -222,10 +222,13 @@ def train(
     # W&B settings
     wandb_entity = train_cfg.get("wandb_entity", "v4lde-danmarks-tekniske-universitet-dtu")
     wandb_project = train_cfg.get("wandb_project", "DTU-MLops")
+    # We'll use 'offline' mode by default to avoid authentication issues during development
+    wandb_mode = train_cfg.get("wandb_mode", "offline")
+    
     wandb_run = wandb.init(
         project=wandb_project,
         entity=wandb_entity,
-        mode="online",
+        mode=wandb_mode,
         name=train_cfg.get("wandb_name"),
         tags=train_cfg.get("wandb_tags", []),
         group=train_cfg.get("wandb_group") or None,
