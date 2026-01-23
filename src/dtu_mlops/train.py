@@ -140,6 +140,7 @@ def train(
     checkpoint_dir: Optional[Path] = None,
     save_best: Optional[bool] = None,
     train_samples: Optional[int] = None,
+    val_samples: Optional[int] = None,
 ) -> None:
     """Train ResNet model on MedMNIST dataset
 
@@ -174,6 +175,7 @@ def train(
             "checkpoint_dir",
             "save_best",
             "train_samples",
+            "val_samples",
         ],
     )
     data_path = resolve_param(data_path, train_cfg, "data_path", as_path=True)
@@ -187,6 +189,7 @@ def train(
     checkpoint_dir = resolve_param(checkpoint_dir, train_cfg, "checkpoint_dir", as_path=True)
     save_best = resolve_param(save_best, train_cfg, "save_best")
     train_samples = resolve_param(train_samples, train_cfg, "train_samples")
+    val_samples = resolve_param(val_samples, train_cfg, "val_samples")
 
     # Resolve model settings without mutating cfg
     model_cfg = train_cfg.get("model") if "model" in train_cfg else None
@@ -280,6 +283,16 @@ def train(
         split="val",
         data_stat=True,
     )
+
+    if val_samples is not None:
+        val_full_size = len(val_dataset)
+        if val_samples <= 0:
+            raise ValueError("val_samples must be positive when provided.")
+        if val_samples > val_full_size:
+            raise ValueError(f"val_samples={val_samples} exceeds validation dataset size {val_full_size}.")
+        val_indices = torch.randperm(val_full_size)[:val_samples]
+        val_dataset = Subset(val_dataset, val_indices.tolist())
+        logger.info(f"Using val subset: {val_samples}/{val_full_size}")
 
     # Create data loaders
     train_loader = DataLoader(
