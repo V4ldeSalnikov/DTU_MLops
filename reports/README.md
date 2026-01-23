@@ -84,7 +84,7 @@ will check the repositories and the code to verify your answers.
 * [X] Add a linting step to your continuous integration (M17)
 * [X] Add pre-commit hooks to your version control setup (M18)
 * [ ] Add a continues workflow that triggers when data changes (M19)
-* [ ] Add a continues workflow that triggers when changes to the model registry is made (M19)
+* [X] Add a continues workflow that triggers when changes to the model registry is made (M19)
 * [ ] Create a data storage in GCP Bucket for your data and link this with your data version control setup (M21)
 * [ ] Create a trigger workflow for automatically building your docker images (M21)
 * [ ] Get your model training in GCP using either the Engine or Vertex AI (M21)
@@ -229,7 +229,7 @@ We enforce code quality with pre-commit hooks: Ruff for linting (and optional au
 >
 > Answer:
 
-We have implemented 50 unit tests in total. While there are more unit tests that we could have implemented, we focused mostly on the core modules. These include: 
+We have implemented 50 unit tests in total. While there are more unit tests that we could have implemented, we focused mostly on the core modules. These include:
 
  1. Training pipeline: Tests for the trainining and validation loops, correct switching between training and validation     modes and correct input label handling
 
@@ -237,7 +237,7 @@ We have implemented 50 unit tests in total. While there are more unit tests that
 
  3. Data pipeline: Tests for the dataset's length, the output shapes and types, correct normalization and computation for mean and standard deviation values.
 
- Along with the above core modules we tested some utility modules, such as configuration loading and resolution (config_utils.py), weights and biases model registry helpers (model_registry.py), evaluation of the model (evaluation.py) and the API functions (api.py). 
+ Along with the above core modules we tested some utility modules, such as configuration loading and resolution (config_utils.py), weights and biases model registry helpers (model_registry.py), evaluation of the model (evaluation.py) and the API functions (api.py).
  Note that we used mocking to avoid real downloads or network calls!
 
 ### Question 8
@@ -301,8 +301,8 @@ We did not use DVC in this project. If we expanded beyond the fixed MedMNIST dow
 > Answer:
 
 We have organized our continuous integration into two workflows, one for code formatting and one for unit testing with code coverage. Both workflows are triggered automatically on every push/pull request to the main branch in order for all new changes to be validated before merging.
-For code formatting we have linting.yaml which runs on Ubuntu and checks the quality of the code using pre-commit hooks. At first, it installs dependencies via uv and then executes pre-commit run --all-files, enforcing consistent formatting. This way we keep our repository consistent. 
-For the unit testing we have tests.yaml which runs our pytest unit tests and produces the code coverage reports. This workflow runs in a matrix setup across Ubuntu, Windows and macOS and generates a terminal code coverage summary along with an HTML report (index.html). The coverage output is uploaded as an artifact under Actions section for easy inspection. 
+For code formatting we have linting.yaml which runs on Ubuntu and checks the quality of the code using pre-commit hooks. At first, it installs dependencies via uv and then executes pre-commit run --all-files, enforcing consistent formatting. This way we keep our repository consistent.
+For the unit testing we have tests.yaml which runs our pytest unit tests and produces the code coverage reports. This workflow runs in a matrix setup across Ubuntu, Windows and macOS and generates a terminal code coverage summary along with an HTML report (index.html). The coverage output is uploaded as an artifact under Actions section for easy inspection.
 We use caching to speed up repeated workflow executions by reusing previously downloaded packages.
 
 ## Running code and tracking experiments
@@ -354,7 +354,7 @@ We rely on Hydra configs plus pinned dependencies to make runs reproducible. All
 >
 > Answer:
 
-As seen in the first image of [Weights and Biases](figures/logging.png) we are mainly tracking loss/acurracy for both training and validation
+As seen in the first image of ![Weights and Biases](figures/logging.png) we are mainly tracking loss/acurracy for both training and validation
 
 For training we log loss and accuracy to check that model indeed learns (likely we are not using DINO and can check if training works by looking at loss that goes down)
 
@@ -433,7 +433,7 @@ We have not used Google Cloud since we thought that for our project such level o
 > Answer:
 
 We are storing images and "labels" from our simulated inference (note that to speed up the process we uploaded "inference data" with labels directly to the dataset bypassing Hugging face pace, however we have checked and insured that data from inference also would record correctly)
-[Image](figures/dataset.png)
+![Image](figures/dataset.png)
 
 ### Question 20
 
@@ -442,7 +442,7 @@ We are storing images and "labels" from our simulated inference (note that to sp
 >
 > Answer:
 
---- We used hugging face for deployment, so we do not have GCP artifact registry. We also used gradio app method to do so, so we do not have different docker images (As our was too big for deployment in free version). ---
+We used hugging face for deployment, so we do not have GCP artifact registry. We also used gradio app method to do so, so we do not have different docker images (As our was too big for deployment in free version).
 
 ### Question 21
 
@@ -451,7 +451,7 @@ We are storing images and "labels" from our simulated inference (note that to sp
 >
 > Answer:
 
---- As before, we didn't use GCP for deployment and we didn't use docker images to do so. For this reason we can't show history of images as we don't have it. ---
+As before, we didn't use GCP for deployment and we didn't use docker images to do so. For this reason we can't show history of images as we don't have it.
 
 ### Question 22
 
@@ -483,7 +483,7 @@ We have trained model locally to save time and resources. For our use case local
 >
 > Answer:
 
---- We did manage to write an API for our model. We used Gradio to do this. We decided to use Gradio as it is compatible with hugging face, which we selected as our deployment space (due to experience of some group member with it). We created needed functions in api.py file plus gradio interface. It contains basically two fields and two buttons. One field for receiving images and second to give results of prediction. One button was to start classification and second to reset given images. Two versions of application were created in total. One local and one to work on hugging face. The local version expected model to be stored locally and dockerfile was prepared to create image of application. The second version was prepared for deployment on hugging face. It additionally contained authentication part (due to concerns of some unconnected people uploading inappropriate images (like real unanonymised CT images)), was linked to model and dataset deployed on hugging face and collected given images to linked dataset (to gather data for drift detection). ---
+We did manage to write an API for our model. We used Gradio to do this. We decided to use Gradio as it is compatible with hugging face, which we selected as our deployment space (due to experience of some group member with it). We created needed functions in api.py file plus gradio interface. It contains basically two fields and two buttons. One field for receiving images and second to give results of prediction. One button was to start classification and second to reset given images. Two versions of application were created in total. One local and one to work on hugging face. The local version expected model to be stored locally and dockerfile was prepared to create image of application. The second version was prepared for deployment on hugging face. It additionally contained authentication part (due to concerns of some unconnected people uploading inappropriate images (like real unanonymised CT images)), was linked to model and dataset deployed on hugging face and collected given images to linked dataset (to gather data for drift detection).
 
 ### Question 24
 
@@ -583,7 +583,7 @@ We have implemented drift detection and tested that is sucesfully detects change
 >
 > Answer:
 
-[Project overview](figures/image-project.png) diagram not 100% accurate look at the description below :
+![Project overview](figures/image-project.png) diagram not 100% accurate look at the description below :
 
 The starting point is our local model training :
 1. We load OrganAMNIST dataset (subset of medmnist)
