@@ -152,7 +152,8 @@ s252682
 >
 > Answer:
 
-We have used Hugging Face spaces and Gradio frameworks. We have utilized HF spaces to deploy inference of our application and Gradio to write a frontend for the HF spaces application.
+We have used Hugging Face spaces and Gradio frameworks. We have utilized HF spaces to deploy inference of 
+our application and Gradio to write a frontend for the HF spaces application.
 
 ## Coding environment
 
@@ -172,15 +173,16 @@ We have used Hugging Face spaces and Gradio frameworks. We have utilized HF spac
 >
 > Answer:
 
-We manage dependencies with uv. Runtime dependencies generally live in pyproject.toml, and the exact, resolved versions are captured in uv.lock. Adding a package is done with uv add <pkg>.
-Environment recreation is simple: uv installs the pinned versions from uv.lock.
+We manage dependencies with uv. Runtime dependencies generally live in pyproject.toml, and the exact, resolved versions are captured in uv.lock. 
+Adding a package is done with uv add <pkg>. Environment recreation is simple: uv installs the pinned versions from uv.lock.
 
 To get an identical setup, a new team member should:
 
 1. Install uv and have Python ≥3.12 available.
 2. Clone the repo.
 3. Create the project venv and install locked dependencies using uv sync.
-    That command builds .venv, installs both runtime and dev dependencies (including Hydra, W&B, Ruff, pytest, etc.), and honors the locked versions across platforms. Running uv run <command> (e.g., uv run pytest) ensures tools use the project environment without manual activation.
+    That command builds .venv, installs both runtime and dev dependencies (including Hydra, W&B, Ruff, pytest, etc.), and honors the locked versions across platforms. 
+    Running uv run <command> (e.g., uv run pytest) ensures tools use the project environment without manual activation.
 
 ### Question 5
 
@@ -196,7 +198,8 @@ To get an identical setup, a new team member should:
 >
 > Answer:
 
-We used the DTU MLOps cookiecutter as the base. Core code lives under src/dtu_mlops/ (data loader, model definitions, training/evaluation scripts, data drifting detector). configs/ now holds Hydra configs - a main config.yaml plus model-specific configs for resnet18/50.  I think overall the folder structure follows the provided template without major changes.
+We used the DTU MLOps cookiecutter as the base. Core code lives under src/dtu_mlops/ (data loader, model definitions, training/evaluation scripts, data drifting detector). 
+configs/ now holds Hydra configs - a main config.yaml plus model-specific configs for resnet18/50. I think overall the folder structure follows the provided template without major changes.
 
 ### Question 6
 
@@ -211,7 +214,10 @@ We used the DTU MLOps cookiecutter as the base. Core code lives under src/dtu_ml
 >
 > Answer:
 
-We enforce code quality with pre-commit hooks: Ruff for linting (and optional auto-fix), uv lock --check to keep dependencies in sync. We use type hints throughout the codebase (in data/model/train modules). Formatting is handled by Ruff’s formatter in CI. We believe these concepts are important to make our code clean and readable (if we are talking about humans) or to make our code more verifiable in order to detect coding agents hallucinations faster (if we talk about AI).
+We enforce code quality with pre-commit hooks: Ruff for linting (and optional auto-fix), uv lock --check to keep dependencies in sync. 
+We use type hints throughout the codebase (in data/model/train modules). Formatting is handled by Ruff’s formatter in CI. 
+We believe these concepts are important to make our code clean and readable (if we are talking about humans) or 
+to make our code more verifiable in order to detect coding agents hallucinations faster (if we talk about AI).
 
 ## Version control
 
@@ -238,7 +244,8 @@ We have implemented 50 unit tests in total. While there are more unit tests that
 
  3. Data pipeline: Tests for the dataset's length, the output shapes and types, correct normalization and computation for mean and standard deviation values.
 
- Along with the above core modules we tested some utility modules, such as configuration loading and resolution (config_utils.py), weights and biases model registry helpers (model_registry.py), evaluation of the model (evaluation.py) and the API functions (api.py).
+ Along with the above core modules we tested some utility modules, such as configuration loading and resolution (config_utils.py), 
+ weights and biases model registry helpers (model_registry.py), evaluation of the model (evaluation.py) and the API functions (api.py).
  Note that we used mocking to avoid real downloads or network calls!
 
 ### Question 8
@@ -254,7 +261,11 @@ We have implemented 50 unit tests in total. While there are more unit tests that
 >
 > Answer:
 
-The total code coverage of our project is 68%, which includes most source files in src/dtu_mlops, excluding drift_detection.py, eval_hf.py and upload_organcmnist_subset.py. The overall percentage is reduced by these few scripts that are not part of the core modules, since unit tests were not implemented for them. Achieving 100% of coverage would not guarantee that the code is error free. Code coverage just measures how many lines of code are run while tests are executed. That being said, bugs can still exist since there may be cases that are not covered by the implemented tests. Code coverage is a useful indicator of test completeness rather than a guarantee of correctness.
+The total code coverage of our project is 68%, which includes most source files in src/dtu_mlops, excluding drift_detection.py, eval_hf.py and upload_organcmnist_subset.py. 
+The overall percentage is reduced by these few scripts that are not part of the core modules, since unit tests were not implemented for them. 
+Achieving 100% of coverage would not guarantee that the code is error free. Code coverage just measures how many lines of code are run while tests are executed. 
+That being said, bugs can still exist since there may be cases that are not covered by the implemented tests. 
+Code coverage is a useful indicator of test completeness rather than a guarantee of correctness.
 
 ### Question 9
 
@@ -269,7 +280,9 @@ The total code coverage of our project is 68%, which includes most source files 
 >
 > Answer:
 
-We worked on feature branches instead of committing directly to main (to enforce this we set up branch protection). Then, we opened a pull request to merge into main. PRs enforced our CI (pre-commit hooks, Ruff, uv lock check, tests) and gave teammates a chance to review before code landed into main.
+We worked on feature branches instead of committing directly to main (to enforce this we set up branch protection). 
+Then, we opened a pull request to merge into main. PRs enforced our CI (pre-commit hooks, Ruff, uv lock check, tests) 
+and gave teammates a chance to review before code landed into main.
 
 ### Question 10
 
@@ -284,7 +297,8 @@ We worked on feature branches instead of committing directly to main (to enforce
 >
 > Answer:
 
-We did not use DVC in this project. If we expanded beyond the fixed MedMNIST download, DVC would be useful for versioning larger or changing datasets. However we have used Hugging face datasets for storing data from API inference (which included build in version control)
+We did not use DVC in this project. If we expanded beyond the fixed MedMNIST download, DVC would be useful for versioning larger or changing datasets. 
+However we have used Hugging face datasets for storing data from API inference (which included build in version control)
 
 ### Question 11
 
@@ -301,9 +315,13 @@ We did not use DVC in this project. If we expanded beyond the fixed MedMNIST dow
 >
 > Answer:
 
-We have organized our continuous integration into two workflows, one for code formatting and one for unit testing with code coverage. Both workflows are triggered automatically on every push/pull request to the main branch in order for all new changes to be validated before merging.
-For code formatting we have linting.yaml which runs on Ubuntu and checks the quality of the code using pre-commit hooks. At first, it installs dependencies via uv and then executes pre-commit run --all-files, enforcing consistent formatting. This way we keep our repository consistent.
-For the unit testing we have tests.yaml which runs our pytest unit tests and produces the code coverage reports. This workflow runs in a matrix setup across Ubuntu, Windows and macOS and generates a terminal code coverage summary along with an HTML report (index.html). The coverage output is uploaded as an artifact under Actions section for easy inspection.
+We have organized our continuous integration into two workflows, one for code formatting and one for unit testing with code coverage. 
+Both workflows are triggered automatically on every push/pull request to the main branch in order for all new changes to be validated before merging.
+For code formatting we have linting.yaml which runs on Ubuntu and checks the quality of the code using pre-commit hooks. 
+At first, it installs dependencies via uv and then executes pre-commit run --all-files, enforcing consistent formatting. 
+This way we keep our repository consistent. For the unit testing we have tests.yaml which runs our pytest unit tests and produces the code coverage reports. 
+This workflow runs in a matrix setup across Ubuntu, Windows and macOS and generates a terminal code coverage summary along with an HTML report (index.html). 
+The coverage output is uploaded as an artifact under Actions section for easy inspection.
 We use caching to speed up repeated workflow executions by reusing previously downloaded packages.
 
 An example of a triggered workflow can be seen here: https://github.com/V4ldeSalnikov/DTU_MLops/pull/45/checks 
@@ -325,7 +343,9 @@ An example of a triggered workflow can be seen here: https://github.com/V4ldeSal
 >
 > Answer:
 
-We use Hydra configs. Defaults live in config.yaml and model variants in configs/model/. Hydra composes them and lets us override per run. Example: `uv run python src/dtu_mlops/train.py model=resnet50 epochs=5 batch_size=32 wandb_name="experiment_run"`
+We use Hydra configs. Defaults live in config.yaml and model variants in configs/model/. 
+Hydra composes them and lets us override per run. 
+Example: `uv run python src/dtu_mlops/train.py model=resnet50 epochs=5 batch_size=32 wandb_name="experiment_run"`
 
 ### Question 13
 
@@ -340,7 +360,11 @@ We use Hydra configs. Defaults live in config.yaml and model variants in configs
 >
 > Answer:
 
-We rely on Hydra configs plus pinned dependencies to make runs reproducible. All experiment settings live in config.yaml and *.yaml; any CLI override (e.g., epochs=5 model=resnet50) is captured by Hydra. We log the fully resolved config into Weights & Biases alongside metrics and checkpoints, so each run records exactly which parameters and model variant were used. Dependencies are locked in uv.lock, and environments are recreated with uv sync --locked, ensuring the same package versions across machines/CI. To reproduce a run, a teammate can pull the repo, uv sync --locked, export their WANDB_API_KEY, and rerun train.py with the logged overrides from W&B.
+We rely on Hydra configs plus pinned dependencies to make runs reproducible. All experiment settings live in config.yaml and *.yaml; 
+any CLI override (e.g., epochs=5 model=resnet50) is captured by Hydra. 
+We log the fully resolved config into Weights & Biases alongside metrics and checkpoints, so each run records exactly which parameters and model variant were used. 
+Dependencies are locked in uv.lock, and environments are recreated with uv sync --locked, ensuring the same package versions across machines/CI.
+To reproduce a run, a teammate can pull the repo, uv sync --locked, export their WANDB_API_KEY, and rerun train.py with the logged overrides from W&B.
 
 ### Question 14
 
@@ -356,14 +380,17 @@ We rely on Hydra configs plus pinned dependencies to make runs reproducible. All
 > *As seen in the second image we are also tracking ... and ...*
 >
 > Answer:
+![Weights and Biases](figures/logging.png)
 
-As seen in the first image of ![Weights and Biases](figures/logging.png) we are mainly tracking loss/acurracy for both training and validation.
+As seen in the image above, we are mainly tracking loss/acurracy for both training and validation.
 
-For training we log loss and accuracy to check that model indeed learns (likely we are not using DINO and can check if training works by looking at loss that goes down).
+For training we log loss and accuracy to check that model indeed learns 
+(likely we are not using DINO and can check if training works by looking at loss that goes down).
 
 For validation we check accuracy to investigate how our model generalizes to unseen data.
 
-Since this course is not model centric we are not doing too much of hyperparameter tuning and this validation dataset performance can be viewed as unbiased estimate of the test performance.
+Since this course is not model centric we are not doing too much of hyperparameter tuning 
+and this validation dataset performance can be viewed as unbiased estimate of the test performance.
 
 
 ### Question 15
@@ -379,7 +406,11 @@ Since this course is not model centric we are not doing too much of hyperparamet
 >
 > Answer:
 
-One of the docker files that we have devoloped was for deployment. To build this image following command was used: 'docker build -f dockerfiles/api.dockerfile -t mlops-api:latest .'. As for running it: 'docker run -d -p 7860:7860 --name mlops-api mlops-api:latest'. Due to usage of hugging face and size of the docker image (3.6 Gb on docker desktop) we used just gradio app for deployment (as it is compatible with hugging face). Nevertheless, for now, this image can be used to work locally between machines and is stored there: https://dtudk-my.sharepoint.com/:f:/r/personal/s253711_dtu_dk/Documents/Courses/Courses%20projects/MLOps?csf=1&web=1&e=K7s02H .
+One of the docker files that we have devoloped was for deployment. To build this image following command was used: 
+'docker build -f dockerfiles/api.dockerfile -t mlops-api:latest .'. As for running it: 'docker run -d -p 7860:7860 --name mlops-api mlops-api:latest'. 
+Due to usage of hugging face and size of the docker image (3.6 Gb on docker desktop) we used just gradio app for deployment (as it is compatible with hugging face). 
+Nevertheless, for now, this image can be used to work locally between machines 
+and is stored there: https://dtudk-my.sharepoint.com/:f:/r/personal/s253711_dtu_dk/Documents/Courses/Courses%20projects/MLOps?csf=1&web=1&e=K7s02H .
 
 ### Question 16
 
@@ -394,7 +425,11 @@ One of the docker files that we have devoloped was for deployment. To build this
 >
 > Answer:
 
-We debugged with a mix of quick unit tests, but mostly using print/log statements inside the training loop and data pipeline. Pre-commit Ruff checks caught many simple issues (unused imports, style) before runtime. For configuration bugs (Hydra overrides, W&B setup), we ran the scripts with small values to check if everything runs correctly. CI failures (lint/tests) also guided some fixes. We didn’t perform deep profiling, but we believe our code would benifit from it, but with relatively small training and evaluation datasets we didnt run into heavy performance issues.
+We debugged with a mix of quick unit tests, but mostly using print/log statements inside the training loop and data pipeline. 
+Pre-commit Ruff checks caught many simple issues (unused imports, style) before runtime. 
+For configuration bugs (Hydra overrides, W&B setup), we ran the scripts with small values to check if everything runs correctly. 
+CI failures (lint/tests) also guided some fixes. We didn’t perform deep profiling, but we believe our code would benifit from it, 
+but with relatively small training and evaluation datasets we didnt run into heavy performance issues.
 
 ## Working in the cloud
 
@@ -411,7 +446,8 @@ We debugged with a mix of quick unit tests, but mostly using print/log statement
 >
 > Answer:
 
-We have not used Google Cloud since we thought that such level of complexity is not required for our project. However, we have used Hugging Face datasets to store data and Hugging Face spaces to run inference.
+We have not used Google Cloud since we thought that such level of complexity is not required for our project. 
+However, we have used Hugging Face datasets to store data and Hugging Face spaces to run inference.
 
 ### Question 18
 
@@ -426,7 +462,8 @@ We have not used Google Cloud since we thought that such level of complexity is 
 >
 > Answer:
 
-We didn't use GCP, but Hugging Face for deployment. It runs on CPU basic version, which entitle: 2vCPU and 16 GB of RAM. The app is run on one python file, which contains backend function and frontend for the gradio app.
+We didn't use GCP, but Hugging Face for deployment. It runs on CPU basic version, which entitle: 2vCPU and 16 GB of RAM. 
+The app is run on one python file, which contains backend function and frontend for the gradio app.
 
 ### Question 19
 
@@ -435,7 +472,9 @@ We didn't use GCP, but Hugging Face for deployment. It runs on CPU basic version
 >
 > Answer:
 
-We are storing images and "labels" from our simulated inference (note: to speed up the process we uploaded "inference data" with labels directly to the dataset, bypassing Hugging Face space, however we have checked and insured that data from inference also would record correctly).
+We are storing images and "labels" from our simulated inference (note: to speed up the process we uploaded "inference data" with labels directly to the dataset, 
+bypassing Hugging Face space, however we have checked and insured that data from inference also would record correctly).
+
 ![Image](figures/dataset.png)
 
 ### Question 20
@@ -445,7 +484,8 @@ We are storing images and "labels" from our simulated inference (note: to speed 
 >
 > Answer:
 
-We used hugging face for deployment, so we do not have GCP artifact registry. We also used gradio app method to do so, so we do not have different docker images (as ours was too big for deployment in the free version).
+We used hugging face for deployment, so we do not have GCP artifact registry. We also used gradio app method to do so, 
+so we do not have different docker images (as ours was too big for deployment in the free version).
 
 ### Question 21
 
@@ -454,7 +494,8 @@ We used hugging face for deployment, so we do not have GCP artifact registry. We
 >
 > Answer:
 
-As before, we didn't use GCP for deployment and we didn't use docker images to do so. For this reason we can't show history of images, as we don't have it.
+As before, we didn't use GCP for deployment and we didn't use docker images to do so. 
+For this reason we can't show history of images, as we don't have it.
 
 ### Question 22
 
@@ -486,8 +527,16 @@ We have trained the model locally to save time and resources. For our use case, 
 >
 > Answer:
 
-We did manage to write an API for our model. We used Gradio to do this. We decided to use Gradio as it is compatible with Hugging Face, which we selected as our deployment space (mostly due to the experience of some of our group members with it). We created the needed functions in the api.py file plus the gradio interface. It contains basically two fields and two buttons. One field for receiving images and second to give results of prediction. One button was to start classification and second to reset given images. Two versions of the application were created in total. One local and one to work on Hugging Face. The local version expected the model to be stored locally and the dockerfile was prepared to create the image of the application. The second version was prepared for deployment on Hugging Face. 
-Additionally, it contained an authentication part, due to concerns of unconnected people uploading inappropriate images (like real unanonymised CT images), which was linked to the model and the dataset deployed on Hugging Face and collected given images to linked dataset (to gather data for drift detection).
+We did manage to write an API for our model. We used Gradio to do this. We decided to use Gradio as it is compatible with Hugging Face, 
+which we selected as our deployment space (mostly due to the experience of some of our group members with it). 
+We created the needed functions in the api.py file plus the gradio interface. 
+It contains basically two fields and two buttons. One field for receiving images and second to give results of prediction. 
+One button was to start classification and second to reset given images. 
+Two versions of the application were created in total. One local and one to work on Hugging Face. 
+The local version expected the model to be stored locally and the dockerfile was prepared to create the image of the application. 
+The second version was prepared for deployment on Hugging Face. 
+Additionally, it contained an authentication part, due to concerns of unconnected people uploading inappropriate images (like real unanonymised CT images), 
+which was linked to the model and the dataset deployed on Hugging Face and collected given images to linked dataset (to gather data for drift detection).
 
 For access use: https://huggingface.co/spaces/G44mlops/API, with the credentials below:
 
@@ -508,7 +557,11 @@ password: sdgagdss-214qwdsfa-1fds12-fdAW132
 >
 > Answer:
 
-We managed to deploy our API both locally and in cloud. For the local version it could be deployed from the source code itself or from the docker image. For cloud deployment we used Hugging Face with gradio option. The additional step, that we had to do and was not mentioned previously, was change from uv ('pyproject.toml' and 'uv.lock') dependencies to 'requirments.txt' as it refused to work otherwise. To use the application, the user has to log in using credentials. Usage of this application was limited in this way due to earlier mentioned concerns. Additionally, this Hugging Face application deployment integrated well with receiver database and the model deployed on Hugging Face.
+We managed to deploy our API both locally and in cloud. For the local version it could be deployed from the source code itself or from the docker image. 
+For cloud deployment we used Hugging Face with gradio option. The additional step, that we had to do and was not mentioned previously, 
+was change from uv ('pyproject.toml' and 'uv.lock') dependencies to 'requirments.txt' as it refused to work otherwise. 
+To use the application, the user has to log in using credentials. Usage of this application was limited in this way due to earlier mentioned concerns. 
+Additionally, this Hugging Face application deployment integrated well with receiver database and the model deployed on Hugging Face.
 
 ### Question 25
 
@@ -523,9 +576,14 @@ We managed to deploy our API both locally and in cloud. For the local version it
 >
 > Answer:
 
-We used pytest for unit testing our API. The test focuses mostly on the helper functions in api.py, such as ensuring that the model loading is done correctly handling errors when the checkpoint file is missing, preprocessing pipeline is constructed with the correct transforms and the extraction of the class labels works as expected. We used mocking to avoid downloading real models or doing external network calls.
+We used pytest for unit testing our API. The test focuses mostly on the helper functions in api.py, 
+such as ensuring that the model loading is done correctly handling errors when the checkpoint file is missing, 
+preprocessing pipeline is constructed with the correct transforms and the extraction of the class labels works as expected. 
+We used mocking to avoid downloading real models or doing external network calls.
 
-While we did not perform full load testing of the deployed API in our project, if we were to do load testing we would have to run the Gradio service locally or in a container and simulate users sending image requests simultaneously. Then we could potentially report latency and errors while increasing the number of simultaneous requests, until the service crashes.
+While we did not perform full load testing of the deployed API in our project, if we were to do load testing we would have to run the Gradio service locally 
+or in a container and simulate users sending image requests simultaneously. 
+Then we could potentially report latency and errors while increasing the number of simultaneous requests, until the service crashes.
 
 ### Question 26
 
@@ -540,7 +598,8 @@ While we did not perform full load testing of the deployed API in our project, i
 >
 > Answer:
 
-We didn’t build production monitoring yet. We think monitoring would help to show how our models perform over time and make the service debuggable and guide retraining/rollbacks.
+We didn’t build production monitoring yet. We think monitoring would help to show how our models perform over time 
+and make the service debuggable and guide retraining/rollbacks.
 
 ## Overall discussion of project
 
@@ -559,7 +618,8 @@ We didn’t build production monitoring yet. We think monitoring would help to s
 >
 > Answer:
 
-We have not used google cloud, the only cloud solution we have used is Hugging Face. We think it is a better alternative for the course project both ideologically - due to the platform's focus on open source and open science - and financially, since Hugging Face provides free ZeroGPU instances and a lot of storage for datasets/models.
+We have not used google cloud, the only cloud solution we have used is Hugging Face. We think it is a better alternative for the course project both ideologically
+ - due to the platform's focus on open source and open science - and financially, since Hugging Face provides free ZeroGPU instances and a lot of storage for datasets/models.
 
 ### Question 28
 
@@ -575,7 +635,9 @@ We have not used google cloud, the only cloud solution we have used is Hugging F
 >
 > Answer:
 
-We have implemented drift detection and tested that it sucessfully detects changes of dataset from OrganAMNIST to OrganCMIST. We have impelemented model registry, where models are stored. After a new model is trained, it triggers the process that checks if the new model performs better on the validation set than the current production model.
+We have implemented drift detection and tested that it sucessfully detects changes of dataset from OrganAMNIST to OrganCMIST. 
+We have impelemented model registry, where models are stored. After a new model is trained, 
+it triggers the process that checks if the new model performs better on the validation set than the current production model.
 
 ### Question 29
 
