@@ -378,7 +378,7 @@ Since this course it not model centric we are not doing to much of hyperparamete
 >
 > Answer:
 
-We debugged with a mix of quick unit tests, but mostly using print/log statements inside the training loop and data pipeline. Pre-commit Ruff checks caught many simple issues (unused imports, style) before runtime. For configuration bugs (Hydra overrides, W&B setup), we ran the scripts with small values to check if everything runs correctly. CI failures (lint/tests) also guided fixes. We didn’t perform deep profiling, but we believe our code would benifit from it, but with relatively small training and evaluation datasets we didnt ran into heavy performance issues
+We debugged with a mix of quick unit tests, but mostly using print/log statements inside the training loop and data pipeline. Pre-commit Ruff checks caught many simple issues (unused imports, style) before runtime. For configuration bugs (Hydra overrides, W&B setup), we ran the scripts with small values to check if everything runs correctly. CI failures (lint/tests) also guided some fixes. We didn’t perform deep profiling, but we believe our code would benifit from it, but with relatively small training and evaluation datasets we didnt ran into heavy performance issues
 
 ## Working in the cloud
 
