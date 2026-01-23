@@ -486,7 +486,13 @@ We have trained the model locally to save time and resources. For our use case, 
 >
 > Answer:
 
-We did manage to write an API for our model. We used Gradio to do this. We decided to use Gradio as it is compatible with Hugging Face, which we selected as our deployment space (mostly due to the experience of some of our group members with it). We created the needed functions in the api.py file plus the gradio interface. It contains basically two fields and two buttons. One field for receiving images and second to give results of prediction. One button was to start classification and second to reset given images. Two versions of the application were created in total. One local and one to work on Hugging Face. The local version expected the model to be stored locally and the dockerfile was prepared to create the image of the application. The second version was prepared for deployment on Hugging Face. Additionally, it contained an authentication part, due to concerns of unconnected people uploading inappropriate images (like real unanonymised CT images), which was linked to the model and the dataset deployed on Hugging Face and collected given images to linked dataset (to gather data for drift detection).
+We did manage to write an API for our model. We used Gradio to do this. We decided to use Gradio as it is compatible with Hugging Face, which we selected as our deployment space (mostly due to the experience of some of our group members with it). We created the needed functions in the api.py file plus the gradio interface. It contains basically two fields and two buttons. One field for receiving images and second to give results of prediction. One button was to start classification and second to reset given images. Two versions of the application were created in total. One local and one to work on Hugging Face. The local version expected the model to be stored locally and the dockerfile was prepared to create the image of the application. The second version was prepared for deployment on Hugging Face. 
+Additionally, it contained an authentication part, due to concerns of unconnected people uploading inappropriate images (like real unanonymised CT images), which was linked to the model and the dataset deployed on Hugging Face and collected given images to linked dataset (to gather data for drift detection).
+
+For access use: https://huggingface.co/spaces/G44mlops/API, with the credentials below:
+
+username: user
+password: sdgagdss-214qwdsfa-1fds12-fdAW132
 
 ### Question 24
 
